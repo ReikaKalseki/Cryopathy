@@ -96,7 +96,7 @@ namespace ReikaKalseki.Cryopathy {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	/*
 	[HarmonyPatch(typeof(MobSpawnManager))]
 	[HarmonyPatch("SpawnMobOnGroundAt")]
 	public static class WormSpawnPatch {
@@ -119,5 +119,5 @@ namespace ReikaKalseki.Cryopathy {
 			}
 			return codes.AsEnumerable();
 		}
-	}
+	}*/
 }
