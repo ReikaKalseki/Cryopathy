@@ -54,38 +54,94 @@ namespace ReikaKalseki.Cryopathy
     	return CubeHelper.IsMachine(real) || CubeHelper.HasEntity(real) ? cryoToBuild : real;
     }
     
-    public static void onFluidMove(Segment s, int x, int y, int z, ushort block, ushort meta, long rawX, long rawY, long rawZ) {
+    public static void onFluidMove(Segment s, int x, int y, int z, ushort block, ushort meta, Segment from, long rawX, long rawY, long rawZ) { //xyz are %16 within segment, raw are world coords
     	s.SetCubeTypeNoChecking(x, y, z, block, meta);
     	if (block == eCubeTypes.ColdCreepFluid) {
-    		Segment below = WorldScript.instance.GetLocalSegment(rawX, rawY-1, rawZ);
+    		long belowY = rawY-1;
+    		Segment below = WorldScript.instance.GetLocalSegment(rawX, belowY, rawZ);
+    		if (below == null)
+    			below = WorldScript.instance.GetSegment(rawX, belowY, rawZ);
     		if (below != null && below.IsSegmentInAGoodState()) {
-	    		int x2 = (int) (rawX % 16L);
-	    		int y2 = (int) ((rawY-1) % 16L);
-				int z2 = (int) (rawZ % 16L);
-	    		ushort at = below.GetCube(x2, y2, z2);
-	    		if (at == eCubeTypes.Magma || at == eCubeTypes.MagmaFluid) {
-	    			Debug.Log("Cryo fell onto magma!");
-					bool flag;
-			    	do {
-			        	flag = WorldScript.instance.Explode(rawX, rawY, rawZ, 4, 1000000);
-			        	if (!flag)
-			        		Thread.Sleep(100);
-			    	} while (!flag);
-					wormSpawnSuccessChance *= WORM_SPAWN_SUCCESS_MULT;
-					int killed = 0;
-					foreach (MobEntity e in MobManager.instance.mActiveMobs) {
-			            if (e != null && e.mType == MobType.WormBossLava && e.mnHealth > 0) {
-							double dist = py3d(e.mnX, e.mnY, e.mnZ, rawX, rawY, rawZ);
-							if (dist < 400) {
-		    					e.TakeDamage(e.mnHealth+1);
-		    					killed++;
-							}
-			            }
-		        	}
-					Debug.Log("Killed "+killed+" worms.");
-	    		}
+    			try {
+    				long x2 = rawX;//(int) (rawX % 16L);
+    				long y2 = belowY;//(int) (belowY % 16L);
+    				long z2 = rawZ;//(int) (rawZ % 16L);
+		    		ushort at = below.GetCube(x2, y2, z2);
+		    		if (at == eCubeTypes.Magma || at == eCubeTypes.MagmaFluid) {
+						clearLava(rawX, rawY, rawZ);
+    					killWorms(rawX, rawY, rawZ);
+		    		}
+    			}
+    			catch (Exception e) {
+    				string err = "Cryo flow patch exception @ "+x+"/"+y+"/"+z+" = "+rawX+"/"+rawY+"/"+rawZ+": "+e.ToString();
+    				Debug.Log(err);
+    				ARTHERPetSurvival.SetARTHERReadoutText(err, 40, false, true);
+    			}
     		}
     	}
+    }
+    
+    private static void killWorms(long x0, long y0, long z0, int size) {
+		int count = MobManager.instance.mActiveMobs.Count;
+		for (int index = 0; index < count; index++) {
+			MobEntity e = MobManager.instance.mActiveMobs[index];
+			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) {
+				Vector3 vec = Vector3.zero;
+				vec.x = (float) (e.mnX - x0);
+				vec.y = (float) (e.mnY - y0);
+				vec.z = (float) (e.mnZ - z0);
+				if (vec.magnitude <= size*1.25) {
+					e.TakeDamage(Int32.MaxValue); //DIE DIE DIE DIE DIE
+					FloatingCombatTextManager.instance.QueueText(e.mnX, e.mnY + 4L, e.mnZ, 1.5f, "Lava Worm Killed!", Color.magenta, 2F, 4096F);
+				}
+			}
+		}
+    }
+    
+    private static void clearLava(long x0, long y0, long z0) {
+    	int size = 24;
+		int maxrSq = size + 1;
+		maxrSq *= maxrSq;
+		HashSet<Segment> hashSet = new HashSet<Segment>();
+		try {
+			for (int i = -size; i <= size; i++) {
+				for (int j = -size; j <= size; j++) {
+					for (int k = -size; k <= size; k++) {
+						Vector3 vector = new Vector3((float)j, (float)i, (float)k);
+						int num4 = (int)vector.sqrMagnitude;
+						if (num4 < maxrSq) {
+							long x = x0 + (long)j;
+							long y = y0 + (long)i;
+							long z = z0 + (long)k;
+							Segment segment = WorldScript.instance.GetSegment(x, y, z);
+							if (segment != null && segment.mbInitialGenerationComplete && !segment.mbDestroyed) {
+								if (!segment.mbIsEmpty) {
+									if (!hashSet.Contains(segment)) {
+										hashSet.Add(segment);
+										segment.BeginProcessing();
+									}
+									ushort cube = segment.GetCube(x, y, z);
+									if (cube == eCubeTypes.Magma || cube == eCubeTypes.MagmaFluid) {
+										if (WorldScript.instance.BuildFromEntity(segment, x, y, z, eCubeTypes.Air, global::TerrainData.DefaultAirValue)) {
+											DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		finally {
+			foreach (Segment current in hashSet) {
+				if (current.mbHasFluid) {
+					current.FluidSleepTicks = 1;
+				}
+				current.EndProcessing();
+			}
+			WorldScript.instance.mNodeWorkerThread.KickNodeWorkerThread();
+		}
     }
     /*
     public static MobEntity onMobAttemptSpawn(MobManager inst, MobType type, Segment segment, long x, long y, long z, Vector3 blockOffset, Vector3 look) {

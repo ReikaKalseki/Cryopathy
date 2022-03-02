@@ -95,8 +95,12 @@ namespace ReikaKalseki.Cryopathy
 				FieldInfo info = convertFieldOperand((string)args[0], (string)args[1]);
 				return insn.operand == info;
 			}
-			else if (insn.opcode == OpCodes.Ldarg) { //int pos
+			else if (insn.opcode == OpCodes.Ldarg || insn.opcode == OpCodes.Starg) { //int pos
 				return insn.operand == args[0];
+			}
+			else if (insn.opcode == OpCodes.Ldloc_S || insn.opcode == OpCodes.Stloc_S) { //LocalBuilder contains a pos and type
+				LocalBuilder loc = (LocalBuilder)insn.operand;
+				return args[0] is int && loc.LocalIndex == (int)args[0]/* && loc.LocalType == args[1]*/;
 			}
 			return true;
 		}
