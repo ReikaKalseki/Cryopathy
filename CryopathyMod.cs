@@ -31,7 +31,7 @@ namespace ReikaKalseki.Cryopathy
         var harmony = HarmonyInstance.Create("ReikaKalseki.Cryopathy");
         HarmonyInstance.DEBUG = true;
         FileLog.Log("Ran mod register, started harmony (harmony log)");
-        Debug.Log("Ran mod register, started harmony");
+        Util.log("Ran mod register, started harmony");
         try {
 			harmony.PatchAll();
         }
@@ -41,6 +41,9 @@ namespace ReikaKalseki.Cryopathy
 			FileLog.Log(e.StackTrace);
 			FileLog.Log(e.ToString());
         }
+        
+        GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
+        Util.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 5);
         
         return registrationData;
     }
@@ -68,14 +71,23 @@ namespace ReikaKalseki.Cryopathy
     				long z2 = rawZ;//(int) (rawZ % 16L);
 		    		ushort at = below.GetCube(x2, y2, z2);
 		    		if (at == eCubeTypes.Magma || at == eCubeTypes.MagmaFluid) {
-						clearLava(rawX, rawY, rawZ);
-    					killWorms(rawX, rawY, rawZ);
+    					int size = 24;
+    					WorldScript.instance.BuildFromEntity(from, rawX, rawY, rawZ, eCubeTypes.Air, TerrainData.DefaultAirValue);
+    					s.SetCubeTypeNoChecking(x, y, z, eCubeTypes.Air, TerrainData.DefaultAirValue);
+						clearLava(rawX, rawY, rawZ, size/2);
+    					killWorms(rawX, rawY, rawZ, size);
+    					//new FALCORBomber().;
+    					//SurvivalParticleManager.instance.
+    					//GameObject go = GameObject.Find ("CryoPlasm Impact Particles");
+    					//ParticleSystem part = go.GetComponent<ParticleSystem>();
+    					//part.transform.position = WorldScript.instance.mPlayerFrustrum.GetCoordsToUnity(rawX, rawY, rawZ) + WorldHelper.DefaultBlockOffset;
+    					//part.Emit(40);
 		    		}
     			}
     			catch (Exception e) {
     				string err = "Cryo flow patch exception @ "+x+"/"+y+"/"+z+" = "+rawX+"/"+rawY+"/"+rawZ+": "+e.ToString();
-    				Debug.Log(err);
-    				ARTHERPetSurvival.SetARTHERReadoutText(err, 40, false, true);
+    				Util.log(err);
+    				ARTHERPetSurvival.instance.SetARTHERReadoutText(err, 40, false, true);
     			}
     		}
     	}
@@ -87,9 +99,9 @@ namespace ReikaKalseki.Cryopathy
 			MobEntity e = MobManager.instance.mActiveMobs[index];
 			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) {
 				Vector3 vec = Vector3.zero;
-				vec.x = (float) (e.mnX - x0);
-				vec.y = (float) (e.mnY - y0);
-				vec.z = (float) (e.mnZ - z0);
+				vec.x = (float) (e.mnX - x0-WorldScript.mDefaultOffset);
+				vec.y = (float) (e.mnY - y0-WorldScript.mDefaultOffset);
+				vec.z = (float) (e.mnZ - z0-WorldScript.mDefaultOffset);
 				if (vec.magnitude <= size*1.25) {
 					e.TakeDamage(Int32.MaxValue); //DIE DIE DIE DIE DIE
 					FloatingCombatTextManager.instance.QueueText(e.mnX, e.mnY + 4L, e.mnZ, 1.5f, "Lava Worm Killed!", Color.magenta, 2F, 4096F);
@@ -98,8 +110,7 @@ namespace ReikaKalseki.Cryopathy
 		}
     }
     
-    private static void clearLava(long x0, long y0, long z0) {
-    	int size = 24;
+    private static void clearLava(long x0, long y0, long z0, int size) {
 		int maxrSq = size + 1;
 		maxrSq *= maxrSq;
 		HashSet<Segment> hashSet = new HashSet<Segment>();
@@ -121,9 +132,16 @@ namespace ReikaKalseki.Cryopathy
 										segment.BeginProcessing();
 									}
 									ushort cube = segment.GetCube(x, y, z);
-									if (cube == eCubeTypes.Magma || cube == eCubeTypes.MagmaFluid) {
+									bool magma = cube == eCubeTypes.Magma || cube == eCubeTypes.MagmaFluid;
+									bool cryo = cube == eCubeTypes.ColdCreep || cube == eCubeTypes.ColdCreepFluid;
+									if (magma || cryo) {
 										if (WorldScript.instance.BuildFromEntity(segment, x, y, z, eCubeTypes.Air, global::TerrainData.DefaultAirValue)) {
-											DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
+											if (magma) {
+												DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
+												if (UnityEngine.Random.Range(0, 40) == 0) {
+													Util.dropItem(x, y, z, "ReikaKalseki.MagmaDNA");
+												}
+											}
 										}
 									}
 								}
@@ -142,6 +160,20 @@ namespace ReikaKalseki.Cryopathy
 			}
 			WorldScript.instance.mNodeWorkerThread.KickNodeWorkerThread();
 		}
+    }
+    
+    public static bool deleteCryo(WorldScript world, Segment seg, long x, long y, long z, ushort cube, float chance) {
+    	return deleteCryo(world, seg, x, y, z, cube, TerrainData.GetDefaultValue(cube), chance);
+    }
+    
+    public static bool deleteCryo(WorldScript world, Segment seg, long x, long y, long z, ushort cube, ushort meta, float chance) {
+    	bool flag = world.BuildFromEntity(seg, x, y, z, cube);
+    	if (flag) {
+    		if (UnityEngine.Random.Range(0, 1.0F) < chance*0.5) {
+    			Util.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
+    		}
+    	}
+    	return flag;
     }
     /*
     public static MobEntity onMobAttemptSpawn(MobManager inst, MobType type, Segment segment, long x, long y, long z, Vector3 blockOffset, Vector3 look) {

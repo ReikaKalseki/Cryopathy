@@ -96,6 +96,98 @@ namespace ReikaKalseki.Cryopathy {
 			return codes.AsEnumerable();
 		}
 	}
+	
+	[HarmonyPatch(typeof(FALCORBomber))]
+	[HarmonyPatch("DoBombClear")]
+	public static class CryoDropPatch_Bomber {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
+				codes[loc].opcode = OpCodes.Call;
+				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
+				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.1F));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(T4_CreepBurner))]
+	[HarmonyPatch("UpdateDischarge")]
+	public static class CryoDropPatch_Dazzler {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
+				codes[loc].opcode = OpCodes.Call;
+				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
+				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.0005F));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(CryoMine))]
+	[HarmonyPatch("LowFrequencyUpdate")]
+	public static class CryoDropPatch_Cryomine {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
+				codes[loc].opcode = OpCodes.Call;
+				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
+				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.05F));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(CreepLancer))]
+	[HarmonyPatch("AttemptSetToAir")]
+	public static class CryoDropPatch_Lancer {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort)});
+				codes[loc].opcode = OpCodes.Call;
+				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort), typeof(float));
+				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.02F));
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
 	/*
 	[HarmonyPatch(typeof(MobSpawnManager))]
 	[HarmonyPatch("SpawnMobOnGroundAt")]
