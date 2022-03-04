@@ -21,7 +21,7 @@ namespace ReikaKalseki.Cryopathy
 		
 		public static void dropItem(long x, long y, long z, string name) {
 			if (ItemEntry.mEntriesByKey.ContainsKey(name)) {
-		    	ItemBase item = ItemManager.SpawnItem(ItemEntry.mEntriesByKey["name"].ItemID);
+		    	ItemBase item = ItemManager.SpawnItem(ItemEntry.mEntriesByKey[name].ItemID);
 		    	DroppedItemData stack = ItemManager.instance.DropItem(item, x, y, z, Vector3.zero);
 	    	}
 	    	else {

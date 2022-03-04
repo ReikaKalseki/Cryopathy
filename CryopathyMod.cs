@@ -43,7 +43,7 @@ namespace ReikaKalseki.Cryopathy
         }
         
         GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
-        Util.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 5);
+        Util.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 10);
         
         return registrationData;
     }
@@ -97,7 +97,7 @@ namespace ReikaKalseki.Cryopathy
 		int count = MobManager.instance.mActiveMobs.Count;
 		for (int index = 0; index < count; index++) {
 			MobEntity e = MobManager.instance.mActiveMobs[index];
-			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) {
+			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) { //TODO: hurt players too
 				Vector3 vec = Vector3.zero;
 				vec.x = (float) (e.mnX - x0-WorldScript.mDefaultOffset);
 				vec.y = (float) (e.mnY - y0-WorldScript.mDefaultOffset);
@@ -140,6 +140,11 @@ namespace ReikaKalseki.Cryopathy
 												DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
 												if (UnityEngine.Random.Range(0, 40) == 0) {
 													Util.dropItem(x, y, z, "ReikaKalseki.MagmaDNA");
+												}
+											}
+											else if (cryo) {
+												if (UnityEngine.Random.Range(0, 20) == 0) {
+													Util.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
 												}
 											}
 										}
