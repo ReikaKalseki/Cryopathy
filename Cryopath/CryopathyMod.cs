@@ -6,6 +6,7 @@ using System.Linq;   //More advanced manipulation of lists/collections
 using System.Threading;
 using Harmony;
 using ReikaKalseki;
+using ReikaKalseki.FortressCore;
 
 namespace ReikaKalseki.Cryopathy
 {
@@ -31,7 +32,7 @@ namespace ReikaKalseki.Cryopathy
         var harmony = HarmonyInstance.Create("ReikaKalseki.Cryopathy");
         HarmonyInstance.DEBUG = true;
         FileLog.Log("Ran mod register, started harmony (harmony log)");
-        Util.log("Ran mod register, started harmony");
+        FUtil.log("Ran mod register, started harmony");
         try {
 			harmony.PatchAll();
         }
@@ -43,7 +44,7 @@ namespace ReikaKalseki.Cryopathy
         }
         
         GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
-        Util.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 10);
+        RecipeUtil.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 10);
         
         return registrationData;
     }
@@ -86,7 +87,7 @@ namespace ReikaKalseki.Cryopathy
     			}
     			catch (Exception e) {
     				string err = "Cryo flow patch exception @ "+x+"/"+y+"/"+z+" = "+rawX+"/"+rawY+"/"+rawZ+": "+e.ToString();
-    				Util.log(err);
+    				FUtil.log(err);
     				ARTHERPetSurvival.instance.SetARTHERReadoutText(err, 40, false, true);
     			}
     		}
@@ -139,12 +140,12 @@ namespace ReikaKalseki.Cryopathy
 											if (magma) {
 												DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
 												if (UnityEngine.Random.Range(0, 40) == 0) {
-													Util.dropItem(x, y, z, "ReikaKalseki.MagmaDNA");
+													FUtil.dropItem(x, y, z, "ReikaKalseki.MagmaDNA");
 												}
 											}
 											else if (cryo) {
 												if (UnityEngine.Random.Range(0, 20) == 0) {
-													Util.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
+													FUtil.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
 												}
 											}
 										}
@@ -175,7 +176,7 @@ namespace ReikaKalseki.Cryopathy
     	bool flag = world.BuildFromEntity(seg, x, y, z, cube);
     	if (flag) {
     		if (UnityEngine.Random.Range(0, 1.0F) < chance*0.5) {
-    			Util.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
+    			FUtil.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
     		}
     	}
     	return flag;

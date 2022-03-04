@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Harmony;
 using UnityEngine;  //Needed for most Unity Enginer manipulations: Vectors, GameObjects, Audio, etc.
+using ReikaKalseki.FortressCore;
 
 namespace ReikaKalseki.Cryopathy {
 	
