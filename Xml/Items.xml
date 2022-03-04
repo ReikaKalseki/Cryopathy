@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfItemEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ItemEntry>
+    <Key>ReikaKalseki.CryoExtract</Key>
+    <Name>Cryoplasm Extract</Name>
+    <Plural>Cryoplasm Extract</Plural>
+    <Type>ItemStack</Type>
+    <!-- Should they stack? -->
+    <Object>FreezeMissileObj</Object>
+    <Sprite>ReikaKalseki.Cryoplasm</Sprite>
+    <Category>Consumable</Category>
+  </ItemEntry>
+  <ItemEntry>
+    <Key>ReikaKalseki.Cryoplacer</Key>
+    <Name>Cryoplasm</Name>
+    <Plural>Cryoplasm</Plural>
+    <Type>ItemStack</Type>
+    <!-- Should they stack? -->
+    <Object>FreezeMissileObj</Object>
+    <Sprite>ReikaKalseki.Cryoplasm</Sprite>
+    <Category>Consumable</Category>
+    <ItemAction>BuildBlock</ItemAction>
+	<ActionParameter>ColdCreepFluid</ActionParameter><!-- Name of cube to build -->
+  </ItemEntry>
+  <ItemEntry>
+    <Key>ReikaKalseki.MagmaDNA</Key>
+    <Name>Magma Worm DNA</Name>
+    <Plural>Magma Worm DNA</Plural>
+    <Type>ItemStack</Type>
+    <!-- Should they stack? -->
+    <Object>RecombinedOrganicMatter</Object>
+    <Sprite>ReikaKalseki.MagmaDNA</Sprite>
+    <Category>Consumable</Category>
+  </ItemEntry>
+</ArrayOfItemEntry>

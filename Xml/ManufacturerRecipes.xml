@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfCraftData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<CraftData>
+		<Key>ReikaKalseki.CryoCrafter</Key>
+		<Category>manufacturing</Category>
+		<Tier>4</Tier>
+		<CraftedKey>ReikaKalseki.CryoCrafter</CraftedKey>
+		<CraftedAmount>1</CraftedAmount>
+		<Costs>
+			<CraftCost>
+				<Key>OverclockedCrystalClock</Key>
+				<Amount>10</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>ChromedMachineBlock</Key>
+				<Amount>20</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>UltimatePCB</Key>
+				<Amount>1</Amount>
+			</CraftCost>
+		</Costs>
+		<ResearchRequirements>
+			<Research>T4_start</Research>			
+		</ResearchRequirements>
+		<Description>Mixes freezon, cryoplasm extract, and a bit of organic substrate to make your very own cryoplasm!</Description>
+		<Hint>Behaves just like real cryoplasm.</Hint>
+		<ResearchCost>2</ResearchCost>
+	</CraftData>
+</ArrayOfCraftData>	

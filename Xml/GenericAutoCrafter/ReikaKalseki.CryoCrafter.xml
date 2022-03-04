@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GenericAutoCrafterDataEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<FriendlyName>Cryo Mixer</FriendlyName>
+	<SpawnObject>CoalEnricher</SpawnObject>
+	<Value>ReikaKalseki.CryoCrafter</Value>
+			
+	<PowerUsePerSecond>40</PowerUsePerSecond>  <!-- optional -->
+	<PowerTransferPerSecond>120</PowerTransferPerSecond>  <!-- optional -->
+	<MaxPowerStorage>360</MaxPowerStorage>  <!-- optional -->
+	<CraftingString>Mixing...</CraftingString>  <!-- optional -->
+	<WorkingAnimation000></WorkingAnimation000>  <!-- optional -->
+	
+	<CraftTime>30</CraftTime>  <!-- optional -->
+	<OptionalIngredients>false</OptionalIngredients>  <!-- optional -->
+	<Recipe>
+		<Key>ReikaKalseki.Cryoplacer</Key>
+		<CraftedName>Cryoplasm</CraftedName>
+		<CraftedAmount>1</CraftedAmount>
+		<Costs>
+			<CraftCost>
+				<Key>ReikaKalseki.CryoExtract</Key><!-- This has to be Name, as it's an item, not a material -->
+				<Amount>3</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>CompressedFreon</Key><!-- This has to be Name, as it's an item, not a material -->
+				<Amount>12</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>RecombinedOrganicMatter</Key>
+				<Amount>1</Amount>
+			</CraftCost>
+		</Costs>
+		<Description>Mixes freezon, cryoplasm extract, and a bit of organic substrate to make your very own cryoplasm!</Description>
+	</Recipe>
+</GenericAutoCrafterDataEntry>
