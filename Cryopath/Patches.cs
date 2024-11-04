@@ -26,9 +26,9 @@ namespace ReikaKalseki.Cryopathy {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int loc = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, "CubeHelper", "IsReinforced", false, new Type[]{typeof(ushort)});
+				int loc = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Call, typeof(CubeHelper), "IsReinforced", false, new Type[]{typeof(ushort)});
 				FileLog.Log("Running patch, which found instruction "+InstructionHandlers.toString(codes, loc));
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "shouldAvoidBlock", false, typeof(ushort));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "shouldAvoidBlock", false, typeof(ushort));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
 			}
@@ -49,10 +49,10 @@ namespace ReikaKalseki.Cryopathy {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int loc = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, "Segment", "GetCube", true, new Type[]{typeof(long), typeof(long), typeof(long)});
+				int loc = InstructionHandlers.getInstruction(codes, 0, 0, OpCodes.Callvirt, typeof(Segment), "GetCube", true, new Type[]{typeof(long), typeof(long), typeof(long)});
 				FileLog.Log("Running patch, which found instruction "+InstructionHandlers.toString(codes, loc));
 				codes[loc].opcode = OpCodes.Call;
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "getCubeForCryoCheckAt", false, typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "getCubeForCryoCheckAt", false, typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort));
 				codes.Insert(loc, new CodeInstruction(OpCodes.Ldloc_1));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
@@ -82,9 +82,9 @@ namespace ReikaKalseki.Cryopathy {
 				li.Add(new CodeInstruction(OpCodes.Ldloc_S, codes[loc7].operand));
 				li.Add(new CodeInstruction(OpCodes.Ldloc_S, codes[loc8].operand));
 				li.Add(new CodeInstruction(OpCodes.Ldloc_S, codes[loc9].operand));
-				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "Segment", "SetCubeTypeNoChecking", true, new Type[]{typeof(int), typeof(int), typeof(int), typeof(ushort), typeof(ushort)});
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, typeof(Segment), "SetCubeTypeNoChecking", true, new Type[]{typeof(int), typeof(int), typeof(int), typeof(ushort), typeof(ushort)});
 				codes[loc].opcode = OpCodes.Call;
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "onFluidMove", false, typeof(Segment), typeof(int), typeof(int), typeof(int), typeof(ushort), typeof(ushort), typeof(Segment), typeof(long), typeof(long), typeof(long));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "onFluidMove", false, typeof(Segment), typeof(int), typeof(int), typeof(int), typeof(ushort), typeof(ushort), typeof(Segment), typeof(long), typeof(long), typeof(long));
 				codes.InsertRange(loc, li);
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
@@ -105,9 +105,9 @@ namespace ReikaKalseki.Cryopathy {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, typeof(WorldScript), "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
 				codes[loc].opcode = OpCodes.Call;
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
 				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.1F));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
@@ -128,9 +128,9 @@ namespace ReikaKalseki.Cryopathy {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, typeof(WorldScript), "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
 				codes[loc].opcode = OpCodes.Call;
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
 				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.0005F));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
@@ -151,9 +151,9 @@ namespace ReikaKalseki.Cryopathy {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, typeof(WorldScript), "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort)});
 				codes[loc].opcode = OpCodes.Call;
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(float));
 				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.05F));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
@@ -174,9 +174,9 @@ namespace ReikaKalseki.Cryopathy {
 		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			try {
-				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, "WorldScript", "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort)});
+				int loc = InstructionHandlers.getLastInstructionBefore(codes, codes.Count, OpCodes.Callvirt, typeof(WorldScript), "BuildFromEntity", true, new Type[]{typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort)});
 				codes[loc].opcode = OpCodes.Call;
-				codes[loc].operand = InstructionHandlers.convertMethodOperand("ReikaKalseki.Cryopathy.CryopathyMod", "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort), typeof(float));
+				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort), typeof(float));
 				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.02F));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
 			}
