@@ -6,7 +6,7 @@
     <Plural>Cryoplasm Extract</Plural>
     <Type>ItemStack</Type>
     <!-- Should they stack? -->
-    <Object>FreezeMissileObj</Object>
+    <Object>UnknownItem</Object>
     <Sprite>ReikaKalseki.Cryoplasm</Sprite>
     <Category>Consumable</Category>
   </ItemEntry>
@@ -16,7 +16,7 @@
     <Plural>Cryoplasm</Plural>
     <Type>ItemStack</Type>
     <!-- Should they stack? -->
-    <Object>FreezeMissileObj</Object>
+    <Object>UnknownItem</Object>
     <Sprite>ReikaKalseki.Cryoplasm</Sprite>
     <Category>Consumable</Category>
     <ItemAction>BuildBlock</ItemAction>

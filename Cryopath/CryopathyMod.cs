@@ -10,13 +10,17 @@ using ReikaKalseki.FortressCore;
 
 namespace ReikaKalseki.Cryopathy
 {
-  public class CryopathyMod : FortressCraftMod
+  public class CryopathyMod : FCoreMod
   {
     public const string MOD_KEY = "ReikaKalseki.Cryopathy";
     public const string CUBE_KEY = "ReikaKalseki.Cryopathy_Key";
     
     //private const float WORM_SPAWN_SUCCESS_MULT = 0.996F;//0.985F;//0.998F;
     //private static float wormSpawnSuccessChance = 1F;
+    
+    public CryopathyMod() : base("Cryopathy") {
+    	
+    }
 
     public override ModRegistrationData Register()
     {
@@ -29,19 +33,7 @@ namespace ReikaKalseki.Cryopathy
         if (entry != null)
           ModCubeType = entry.CubeType;
          */        
-        var harmony = HarmonyInstance.Create("ReikaKalseki.Cryopathy");
-        HarmonyInstance.DEBUG = true;
-        FileLog.Log("Ran mod register, started harmony (harmony log)");
-        FUtil.log("Ran mod register, started harmony");
-        try {
-			harmony.PatchAll();
-        }
-        catch (Exception e) {
-			FileLog.Log("Caught exception when running patcher!");
-			FileLog.Log(e.Message);
-			FileLog.Log(e.StackTrace);
-			FileLog.Log(e.ToString());
-        }
+        runHarmony();
         
         GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
         RecipeUtil.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 10);
@@ -192,13 +184,6 @@ namespace ReikaKalseki.Cryopathy
     	}
     	return inst.SpawnMob(type, segment, x, y, z, blockOffset, look);
     }*/
-    
-    private static double py3d(long rawX, long rawY, long rawZ, long rawX2, long rawY2, long rawZ2) {
-    	long dx = rawX2-rawX;
-    	long dy = rawY2-rawY;
-    	long dz = rawZ2-rawZ;
-    	return Math.Sqrt(dx*dx+dy*dy+dz*dz);
-    }
 
   }
 }
