@@ -118,7 +118,7 @@ namespace ReikaKalseki.Cryopathy
 							long y = y0 + (long)i;
 							long z = z0 + (long)k;
 							Segment segment = WorldScript.instance.GetSegment(x, y, z);
-							if (segment != null && segment.mbInitialGenerationComplete && !segment.mbDestroyed) {
+							if (segment.isSegmentValid()) {
 								if (!segment.mbIsEmpty) {
 									if (!hashSet.Contains(segment)) {
 										hashSet.Add(segment);
