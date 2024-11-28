@@ -13,32 +13,65 @@ namespace ReikaKalseki.Cryopathy
   public class CryopathyMod : FCoreMod
   {
     public const string MOD_KEY = "ReikaKalseki.Cryopathy";
-    public const string CUBE_KEY = "ReikaKalseki.Cryopathy_Key";
     
-    //private const float WORM_SPAWN_SUCCESS_MULT = 0.996F;//0.985F;//0.998F;
-    //private static float wormSpawnSuccessChance = 1F;
+    private static Config<CRConfig.ConfigEntries> config;
+
+    public static ushort missileTurretBlockID;
     
     public CryopathyMod() : base("Cryopathy") {
-    	
+    	config = new Config<CRConfig.ConfigEntries>(this);
     }
+	
+	public static Config<CRConfig.ConfigEntries> getConfig() {
+		return config;
+	}
+	
+	public static float getDNADropScalar() {
+    	return config.getFloat(CRConfig.ConfigEntries.DROP_CHANCE);
+	}
 
     public override ModRegistrationData Register()
     {
-        ModRegistrationData registrationData = new ModRegistrationData();
-        //registrationData.RegisterEntityHandler(MOD_KEY);
-        /*
-        TerrainDataEntry entry;
-        TerrainDataValueEntry valueEntry;
-        TerrainData.GetCubeByKey(CUBE_KEY, out entry, out valueEntry);
-        if (entry != null)
-          ModCubeType = entry.CubeType;
-         */        
+        ModRegistrationData registrationData = new ModRegistrationData();  
+        
+        config.load();
+        
         runHarmony();
+        
+		registrationData.RegisterEntityHandler("ReikaKalseki.CryoMissileTurret");
+		TerrainDataEntry terrainDataEntry;
+		TerrainDataValueEntry terrainDataValueEntry;
+		TerrainData.GetCubeByKey("ReikaKalseki.CryoMissileTurret_Key", out terrainDataEntry, out terrainDataValueEntry);
+		missileTurretBlockID = terrainDataEntry.CubeType;
         
         GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
         RecipeUtil.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 10);
         
         return registrationData;
+    }
+    
+	public override ModCreateSegmentEntityResults CreateSegmentEntity(ModCreateSegmentEntityParameters parameters) {
+		ModCreateSegmentEntityResults modCreateSegmentEntityResults = new ModCreateSegmentEntityResults();
+		try {
+			if (parameters.Cube == missileTurretBlockID)
+				modCreateSegmentEntityResults.Entity = new CryoMissileTurret(parameters.Segment, parameters.X, parameters.Y, parameters.Z, parameters.Cube, parameters.Flags, parameters.Value, parameters.LoadFromDisk);
+		}
+		catch (Exception e) {
+			FUtil.log(e.ToString());
+		}
+		return modCreateSegmentEntityResults;
+	}
+    
+    private static Dictionary<int, float> spawnerPauseTimes = new Dictionary<int, float>();
+    
+    public static void pauseCryospawner(ColdCreepSpawner spawner) {
+    	spawnerPauseTimes[spawner.mnID] = Time.time;
+    }
+    
+    public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {
+    	if (!spawnerPauseTimes.ContainsKey(spawner.mnID))
+    		return false;
+    	return Time.time-spawnerPauseTimes[spawner.mnID] < config.getFloat(CRConfig.ConfigEntries.STUN_TIME);
     }
     
     public static bool shouldAvoidBlock(ushort ID) {
@@ -64,17 +97,27 @@ namespace ReikaKalseki.Cryopathy
     				long z2 = rawZ;//(int) (rawZ % 16L);
 		    		ushort at = below.GetCube(x2, y2, z2);
 		    		if (at == eCubeTypes.Magma || at == eCubeTypes.MagmaFluid) {
-    					int size = 24;
+		    			int size = config.getInt(CRConfig.ConfigEntries.CRYO_LAVA_AOE);
     					WorldScript.instance.BuildFromEntity(from, rawX, rawY, rawZ, eCubeTypes.Air, TerrainData.DefaultAirValue);
     					s.SetCubeTypeNoChecking(x, y, z, eCubeTypes.Air, TerrainData.DefaultAirValue);
-						clearLava(rawX, rawY, rawZ, size/2);
-    					killWorms(rawX, rawY, rawZ, size);
-    					//new FALCORBomber().;
-    					//SurvivalParticleManager.instance.
-    					//GameObject go = GameObject.Find ("CryoPlasm Impact Particles");
-    					//ParticleSystem part = go.GetComponent<ParticleSystem>();
-    					//part.transform.position = WorldScript.instance.mPlayerFrustrum.GetCoordsToUnity(rawX, rawY, rawZ) + WorldHelper.DefaultBlockOffset;
-    					//part.Emit(40);
+						clearLava(rawX, rawY, rawZ, size);
+    					killWorms(rawX, rawY, rawZ, size*2);
+    					
+    					Player ep = WorldScript.mLocalPlayer;
+						Vector3 vec = new Vector3(x2-ep.mnWorldX, y2-ep.mnWorldY, z2-ep.mnWorldZ);
+						float dist = vec.magnitude;
+						if (dist <= size) {
+							float damage = Mathf.Lerp(100, 0, Mathf.Clamp01((dist-size/2F)*2F/size)); //kill at <50% radius
+							if (damage > 0)
+								SurvivalPowerPanel.HurtWithReason(damage, false, "You are just as explodable as worms");
+						}
+						
+			    		Vector3 position = WorldScript.instance.mPlayerFrustrum.GetCoordsToUnity(x2, y2, z2) + WorldHelper.DefaultBlockOffset;
+						SurvivalParticleManager.instance.CryoDust.transform.position = position;
+						SurvivalParticleManager.instance.CryoDust.Emit(120);
+						AudioHUDManager.instance.mSource.pitch = 0.5F;
+						AudioHUDManager.instance.mSource.transform.position = position;
+						AudioHUDManager.instance.mSource.PlayOneShot(AudioHUDManager.instance.mBFL_Fire, 2f);
 		    		}
     			}
     			catch (Exception e) {
@@ -90,7 +133,7 @@ namespace ReikaKalseki.Cryopathy
 		int count = MobManager.instance.mActiveMobs.Count;
 		for (int index = 0; index < count; index++) {
 			MobEntity e = MobManager.instance.mActiveMobs[index];
-			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) { //TODO: hurt players too
+			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) {
 				Vector3 vec = Vector3.zero;
 				vec.x = (float) (e.mnX - x0-WorldScript.mDefaultOffset);
 				vec.y = (float) (e.mnY - y0-WorldScript.mDefaultOffset);
@@ -129,16 +172,14 @@ namespace ReikaKalseki.Cryopathy
 									bool cryo = cube == eCubeTypes.ColdCreep || cube == eCubeTypes.ColdCreepFluid;
 									if (magma || cryo) {
 										if (WorldScript.instance.BuildFromEntity(segment, x, y, z, eCubeTypes.Air, global::TerrainData.DefaultAirValue)) {
+											float rand = UnityEngine.Random.Range(0F, 1F)/config.getFloat(CRConfig.ConfigEntries.MAGMA_DROP_CHANCE);
 											if (magma) {
 												DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
-												if (UnityEngine.Random.Range(0, 40) == 0) {
+												if (rand < 1/40F)
 													FUtil.dropItem(x, y, z, "ReikaKalseki.MagmaDNA");
-												}
 											}
-											else if (cryo) {
-												if (UnityEngine.Random.Range(0, 20) == 0) {
-													FUtil.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
-												}
+											else if (cryo && rand < 1/20F) {
+												FUtil.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
 											}
 										}
 									}
@@ -167,7 +208,7 @@ namespace ReikaKalseki.Cryopathy
     public static bool deleteCryo(WorldScript world, Segment seg, long x, long y, long z, ushort cube, ushort meta, float chance) {
     	bool flag = world.BuildFromEntity(seg, x, y, z, cube);
     	if (flag) {
-    		if (UnityEngine.Random.Range(0, 1.0F) < chance*0.5) {
+    		if (UnityEngine.Random.Range(0F, 1F) < chance*0.5*config.getFloat(CRConfig.ConfigEntries.DROP_CHANCE)) {
     			FUtil.dropItem(x, y, z, "ReikaKalseki.CryoExtract");
     		}
     	}

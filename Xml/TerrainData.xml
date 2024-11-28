@@ -9,7 +9,52 @@
 				<Name>Cryo Mixer</Name>
 				<IconName>ReikaKalseki.CryoMixer</IconName>
 				<Description>Mixes freezon, cryoplasm extract, and a bit of organic substrate to make your very own cryoplasm!</Description>
+			</ValueEntry>	
+			<ValueEntry>
+				<Key>ReikaKalseki.CryoMelterMissileCrafter</Key>
+				<Name>Cryo Melter Missile Crafter</Name>
+				<IconName>ReikaKalseki.CryoMelterMissileCrafter</IconName>
+				<Description>Loads a missile with sulfur to enable it to melt a large volume of cryoplasm on impact.</Description>
+			</ValueEntry>		
+			<ValueEntry>
+				<Key>ReikaKalseki.CryoSpawnerMissileCrafter</Key>
+				<Name>Cryospawner Stun Missile Programmer</Name>
+				<IconName>ReikaKalseki.CryoSpawnerMissileCrafter</IconName>
+				<Description>Further refines a melter missile to allow it to seek out cryospawners, temporarily blocking their cryoplasm production.</Description>
 			</ValueEntry>			
 		</Values>
-	</TerrainDataEntry>		
+	</TerrainDataEntry>
+  <TerrainDataEntry>
+    <Key>ReikaKalseki.CryoMissileTurret</Key>
+    <Name>Cryo Missile Turret</Name>
+    <Description>Fires special missiles upon levitating cryoplasm and its spawners.</Description>
+		<LayerType>PrimaryTerrain</LayerType>
+		<TopTexture>187</TopTexture>
+		<SideTexture>187</SideTexture>
+		<BottomTexture>187</BottomTexture>
+		<GUITexture>187</GUITexture>
+		<isSolid>false</isSolid>
+		<isTransparent>true</isTransparent>
+		<isHollow>false</isHollow>
+		<isGlass>false</isGlass>
+		<isPassable>false</isPassable>
+		<hasObject>true</hasObject>
+		<hasEntity>true</hasEntity>
+		<Category>Machine</Category>
+		<AudioWalkType>Metal</AudioWalkType>
+		<AudioBuildType>Dirt</AudioBuildType>
+		<AudioDestroyType>None</AudioDestroyType>
+		<tags>
+			<tag>Machinery</tag>
+		</tags>
+		<Values>
+			<ValueEntry>
+				<Value>0</Value>
+				<Key>ReikaKalseki.CryoMissileTurret_Key</Key>
+				<Name>Cryo Missile Turret</Name>
+				<IconName>ReikaKalseki.CryoMissileTurret</IconName>
+				<Description>Fires special missiles upon levitating cryoplasm and its spawners.</Description>
+			</ValueEntry>
+		</Values>
+  </TerrainDataEntry>		
 </ArrayOfTerrainDataEntry>

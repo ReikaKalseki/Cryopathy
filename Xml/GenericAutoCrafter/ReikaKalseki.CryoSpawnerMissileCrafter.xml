@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GenericAutoCrafterDataEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<FriendlyName>Cryospawner Stun Missile Programmer</FriendlyName>
+	<SpawnObject>PlasmaWarheadImbuer</SpawnObject>
+	<Value>ReikaKalseki.CryoSpawnerMissileCrafter</Value>
+			
+	<PowerUsePerSecond>60</PowerUsePerSecond>  <!-- optional -->
+	<PowerTransferPerSecond>120</PowerTransferPerSecond>  <!-- optional -->
+	<MaxPowerStorage>360</MaxPowerStorage>  <!-- optional -->
+	<CraftingString>Reprogramming...</CraftingString>  <!-- optional -->
+	<WorkingAnimation000></WorkingAnimation000>  <!-- optional -->
+	
+	<CraftTime>30</CraftTime>  <!-- optional -->
+	<OptionalIngredients>false</OptionalIngredients>  <!-- optional -->
+	<Recipe>
+		<Key>ReikaKalseki.CryoSpawnerMissile</Key>
+		<CraftedKey>ReikaKalseki.CryoSpawnerMissile</CraftedKey>
+		<CraftedAmount>1</CraftedAmount>
+		<Costs>
+			<CraftCost>
+				<Key>ReikaKalseki.CryoMelterMissile</Key>
+				<Amount>1</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>ChargedPCB</Key>
+				<Amount>5</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>SecondaryUpgradeModule</Key>
+				<Amount>1</Amount>
+			</CraftCost>
+		</Costs>
+		<Description>Further refines a melter missile to allow it to seek out cryospawners, temporarily blocking their cryoplasm production.</Description>
+	</Recipe>
+</GenericAutoCrafterDataEntry>

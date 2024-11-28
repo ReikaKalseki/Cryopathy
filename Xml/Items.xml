@@ -32,4 +32,32 @@
     <Sprite>ReikaKalseki.MagmaDNA</Sprite>
     <Category>Consumable</Category>
   </ItemEntry>
+	<ItemEntry>
+		<Key>ReikaKalseki.CryoMelterMissile</Key>
+		<Name>Cryo Melter Missile</Name>
+		<Plural>Cryo Melter Missiles</Plural>
+		<Type>ItemStack</Type>	
+		<Object>ClusterMissileObj</Object>
+		<Sprite>ReikaKalseki.CryoMelterMissile</Sprite>
+		<!-- Atlas optional -->
+		<Category>Consumable</Category>
+		<ResearchRequirements>
+			<Research>missiledefence</Research>
+			<Research>T4defence2</Research>
+		</ResearchRequirements>		
+	</ItemEntry>
+	<ItemEntry>
+		<Key>ReikaKalseki.CryoSpawnerMissile</Key>
+		<Name>Cryospawner Stun Missile</Name>
+		<Plural>Cryospawner Stun Missiles</Plural>
+		<Type>ItemStack</Type>	
+		<Object>ClusterMissileObj</Object>
+		<Sprite>ReikaKalseki.CryoSpawnerMissile</Sprite>
+		<!-- Atlas optional -->
+		<Category>Consumable</Category>
+		<ResearchRequirements>
+			<Research>missiledefence</Research>
+			<Research>T4defence2</Research>
+		</ResearchRequirements>		
+	</ItemEntry>
 </ArrayOfItemEntry>
