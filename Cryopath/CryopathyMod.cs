@@ -166,9 +166,10 @@ namespace ReikaKalseki.Cryopathy
 			if (e != null && (e.mType == MobType.WormBoss || e.mType == MobType.WormBossLava) && e.mnHealth > 0) {
 				n++;
 				Vector3 vec = Vector3.zero;
-				vec.x = (float) (e.mnX - x0-WorldScript.mDefaultOffset);
-				vec.y = (float) (e.mnY - y0-WorldScript.mDefaultOffset);
-				vec.z = (float) (e.mnZ - z0-WorldScript.mDefaultOffset);
+				vec.x = (float) (e.mnX - x0);
+				vec.y = (float) (e.mnY - y0);
+				vec.z = (float) (e.mnZ - z0);
+				FUtil.log("Worm @ "+new Coordinate(e)+": Dist is "+vec+" = "+vec.magnitude);
 				if (vec.magnitude <= size*1.25) {
 					e.TakeDamage(Int32.MaxValue); //DIE DIE DIE DIE DIE
 					FloatingCombatTextManager.instance.QueueText(e.mnX, e.mnY + 4L, e.mnZ, 1.5f, "Lava Worm Killed!", Color.magenta, 2F, 4096F);
