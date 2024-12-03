@@ -158,10 +158,13 @@ namespace ReikaKalseki.Cryopathy
     }
     
     private static void killWorms(long x0, long y0, long z0, int size) {
+    	FUtil.log("Killing worms around "+x0+", "+y0+", "+z0);
 		int count = MobManager.instance.mActiveMobs.Count;
+		int n = 0;
 		for (int index = 0; index < count; index++) {
 			MobEntity e = MobManager.instance.mActiveMobs[index];
-			if (e != null && e.mType == MobType.WormBoss && e.mnHealth > 0) {
+			if (e != null && (e.mType == MobType.WormBoss || e.mType == MobType.WormBossLava) && e.mnHealth > 0) {
+				n++;
 				Vector3 vec = Vector3.zero;
 				vec.x = (float) (e.mnX - x0-WorldScript.mDefaultOffset);
 				vec.y = (float) (e.mnY - y0-WorldScript.mDefaultOffset);
@@ -172,6 +175,7 @@ namespace ReikaKalseki.Cryopathy
 				}
 			}
 		}
+    	FUtil.log("Scanned "+n+" worms of "+count+" mobs");
     }
     
     private static void clearLava(long x0, long y0, long z0, int size) {
