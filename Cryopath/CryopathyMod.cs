@@ -30,10 +30,7 @@ namespace ReikaKalseki.Cryopathy
     	return config.getFloat(CRConfig.ConfigEntries.DROP_CHANCE);
 	}
 
-    public override ModRegistrationData Register()
-    {
-        ModRegistrationData registrationData = new ModRegistrationData();  
-        
+    protected override void loadMod(ModRegistrationData registrationData) {           
         config.load();
         
         runHarmony();
@@ -45,9 +42,7 @@ namespace ReikaKalseki.Cryopathy
 		missileTurretBlockID = terrainDataEntry.CubeType;
         
         GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
-        RecipeUtil.addIngredient(entry.Recipe, "ReikaKalseki.MagmaDNA", 10);
-        
-        return registrationData;
+        entry.Recipe.addIngredient("ReikaKalseki.MagmaDNA", 10);
     }
     
 	public override ModCreateSegmentEntityResults CreateSegmentEntity(ModCreateSegmentEntityParameters parameters) {
@@ -83,6 +78,41 @@ namespace ReikaKalseki.Cryopathy
     	return CubeHelper.IsMachine(real) || CubeHelper.HasEntity(real) ? cryoToBuild : real;
     }
     
+    private static Coordinate explodeFXQueued = null;
+    
+    public static void tickPlayer(LocalPlayerScript ep) {
+    	if (explodeFXQueued != null) {
+    		FUtil.log("Processing queued explode FX @ "+explodeFXQueued.ToString());
+		   	Vector3 position = WorldScript.instance.mPlayerFrustrum.GetCoordsToUnity(explodeFXQueued.xCoord, explodeFXQueued.yCoord, explodeFXQueued.zCoord) + WorldHelper.DefaultBlockOffset;
+			if (true/*dist < 128*/) {
+		   		FUtil.log("Spawning FX @ "+position);
+		   		if (SurvivalParticleManager.instance.CryoDust) {
+					SurvivalParticleManager.instance.CryoDust.transform.position = position;
+					SurvivalParticleManager.instance.CryoDust.Emit(120);
+		   		}
+		   		else {
+		   			FUtil.log("Cryo dust FX was null?");
+		   		}
+			}
+			else {
+				FUtil.log("Skipping FX, too far");
+			}
+			FUtil.log("Playing explode sound");
+			if (AudioHUDManager.instance.mSource && AudioHUDManager.instance.mDeleteSFX) {
+				AudioHUDManager.instance.mSource.pitch = 0.2F;
+				AudioHUDManager.instance.mSource.transform.position = position;
+				AudioHUDManager.instance.mSource.PlayOneShot(AudioHUDManager.instance.mDeleteSFX, 3F);
+			}
+			else if (AudioHUDManager.instance.mSource) {
+				FUtil.log("Sound was null?");
+			}
+			else {
+				FUtil.log("Sound source was null?");
+			}
+	    	explodeFXQueued = null;
+    	}
+    }
+    
     public static void onFluidMove(Segment s, int x, int y, int z, ushort block, ushort meta, Segment from, long rawX, long rawY, long rawZ) { //xyz are %16 within segment, raw are world coords
     	s.SetCubeTypeNoChecking(x, y, z, block, meta);
     	if (block == eCubeTypes.ColdCreepFluid) {
@@ -98,6 +128,7 @@ namespace ReikaKalseki.Cryopathy
 		    		ushort at = below.GetCube(x2, y2, z2);
 		    		if (at == eCubeTypes.Magma || at == eCubeTypes.MagmaFluid) {
 		    			int size = config.getInt(CRConfig.ConfigEntries.CRYO_LAVA_AOE);
+		    			FUtil.log("Cryo met magma @ "+x2+", "+y2+", "+z2+" "+Coordinate.fromRawXYZ(x2, y2, z2).ToString()+", exploding R="+size);
     					WorldScript.instance.BuildFromEntity(from, rawX, rawY, rawZ, eCubeTypes.Air, TerrainData.DefaultAirValue);
     					s.SetCubeTypeNoChecking(x, y, z, eCubeTypes.Air, TerrainData.DefaultAirValue);
 						clearLava(rawX, rawY, rawZ, size);
@@ -108,16 +139,13 @@ namespace ReikaKalseki.Cryopathy
 						float dist = vec.magnitude;
 						if (dist <= size) {
 							float damage = Mathf.Lerp(100, 0, Mathf.Clamp01((dist-size/2F)*2F/size)); //kill at <50% radius
-							if (damage > 0)
+							if (damage > 0) {
+		    					FUtil.log("Player was close at dist "+dist+", dmg = "+damage);
 								SurvivalPowerPanel.HurtWithReason(damage, false, "You are just as explodable as worms");
+							}
 						}
-						
-			    		Vector3 position = WorldScript.instance.mPlayerFrustrum.GetCoordsToUnity(x2, y2, z2) + WorldHelper.DefaultBlockOffset;
-						SurvivalParticleManager.instance.CryoDust.transform.position = position;
-						SurvivalParticleManager.instance.CryoDust.Emit(120);
-						AudioHUDManager.instance.mSource.pitch = 0.5F;
-						AudioHUDManager.instance.mSource.transform.position = position;
-						AudioHUDManager.instance.mSource.PlayOneShot(AudioHUDManager.instance.mBFL_Fire, 2f);
+						explodeFXQueued = new Coordinate(x2, y2, z2);
+						FUtil.log("Queuing FX @ "+explodeFXQueued.ToString());
 		    		}
     			}
     			catch (Exception e) {

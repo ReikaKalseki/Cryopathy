@@ -44,58 +44,6 @@ namespace ReikaKalseki.Cryopathy {
 	}
 	
 	[HarmonyPatch(typeof(ColdCreepSpawner))]
-	[HarmonyPatch("LowFrequencyUpdate")]
-	public static class CreepLFUPause {
-		
-		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen) {
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-			try {
-				FileLog.Log("Running patch "+MethodBase.GetCurrentMethod().DeclaringType);
-				Label lb = gen.DefineLabel();
-				CodeInstruction[] add = new CodeInstruction[]{
-					new CodeInstruction(OpCodes.Ldarg_0),
-					InstructionHandlers.createMethodCall(typeof(CryopathyMod), "isCryospawnerPaused", false, new Type[]{typeof(ColdCreepSpawner)}),
-					new CodeInstruction(OpCodes.Brfalse),
-				};
-				codes[0].labels.Add(lb);
-				InstructionHandlers.patchInitialHook(codes, add);
-				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
-				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
-			}
-			catch (Exception e) {
-				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
-				FileLog.Log(e.Message);
-				FileLog.Log(e.StackTrace);
-				FileLog.Log(e.ToString());
-			}
-			return codes.AsEnumerable();
-		}
-	}
-	
-	[HarmonyPatch(typeof(ColdCreepSpawner))]
-	[HarmonyPatch("LowFrequencyUpdate")]
-	public static class CreepAggressionControl {
-		
-		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-			try {
-				FileLog.Log("Running patch "+MethodBase.GetCurrentMethod().DeclaringType);
-				
-				
-				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
-				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
-			}
-			catch (Exception e) {
-				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
-				FileLog.Log(e.Message);
-				FileLog.Log(e.StackTrace);
-				FileLog.Log(e.ToString());
-			}
-			return codes.AsEnumerable();
-		}
-	}
-	
-	[HarmonyPatch(typeof(ColdCreepSpawner))]
 	[HarmonyPatch("BuildCreepAt")]
 	public static class CreepBuildPatch {
 		
@@ -238,6 +186,79 @@ namespace ReikaKalseki.Cryopathy {
 				codes[loc].operand = InstructionHandlers.convertMethodOperand(typeof(CryopathyMod), "deleteCryo", false, typeof(WorldScript), typeof(Segment), typeof(long), typeof(long), typeof(long), typeof(ushort), typeof(ushort), typeof(float));
 				codes.Insert(loc, new CodeInstruction(OpCodes.Ldc_R4, 0.02F));
 				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(LocalPlayerScript))]
+	[HarmonyPatch("FixedUpdate")]
+	public static class PlayerTickHook {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				FileLog.Log("Running patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				InstructionHandlers.patchInitialHook(codes, new List<CodeInstruction>{new CodeInstruction(OpCodes.Ldarg_0), InstructionHandlers.createMethodCall(typeof(CryopathyMod), "tickPlayer", false, new Type[]{typeof(LocalPlayerScript)})});
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(ColdCreepSpawner))]
+	[HarmonyPatch("LowFrequencyUpdate")]
+	public static class CreepLFUPause {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator gen) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				FileLog.Log("Running patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				Label lb = gen.DefineLabel();
+				CodeInstruction[] add = new CodeInstruction[]{
+					new CodeInstruction(OpCodes.Ldarg_0),
+					InstructionHandlers.createMethodCall(typeof(CryopathyMod), "isCryospawnerPaused", false, new Type[]{typeof(ColdCreepSpawner)}),
+					new CodeInstruction(OpCodes.Brfalse, lb),
+				};
+				codes[0].labels.Add(lb);
+				InstructionHandlers.patchInitialHook(codes, add);
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
+			}
+			catch (Exception e) {
+				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
+				FileLog.Log(e.Message);
+				FileLog.Log(e.StackTrace);
+				FileLog.Log(e.ToString());
+			}
+			return codes.AsEnumerable();
+		}
+	}
+	
+	[HarmonyPatch(typeof(ColdCreepSpawner))]
+	[HarmonyPatch("LowFrequencyUpdate")]
+	public static class CreepAggressionControl {
+		
+		static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions) {
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			try {
+				FileLog.Log("Running patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				
+				
+				FileLog.Log("Done patch "+MethodBase.GetCurrentMethod().DeclaringType);
+				//FileLog.Log("Codes are "+InstructionHandlers.toString(codes));
 			}
 			catch (Exception e) {
 				FileLog.Log("Caught exception when running patch "+MethodBase.GetCurrentMethod().DeclaringType+"!");
