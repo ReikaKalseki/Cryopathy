@@ -7,7 +7,7 @@
     <Type>ItemStack</Type>
     <!-- Should they stack? -->
     <Object>UnknownItem</Object>
-    <Sprite>ReikaKalseki.Cryoplasm</Sprite>
+    <Sprite>ReikaKalseki.CryoplasmExtract</Sprite>
     <Category>Consumable</Category>
   </ItemEntry>
   <ItemEntry>
