@@ -206,6 +206,7 @@ namespace ReikaKalseki.Cryopathy {
 						FUtil.log("Error @ "+this+", can't set missile graphics as our loaded missile ID was " + (maStoredMissileType <= 0 ? "null" : ItemEntry.mEntriesById[maStoredMissileType].Key));
 						return;
 					}
+					FUtil.log("Client target from "+this+" to "+visualTarget+" = "+visualTarget.fromRaw());
 					MissileEffectManager.instance.FireMissile(fx.transform.position, visualTarget.xCoord, visualTarget.yCoord, visualTarget.zCoord, fx.transform.forward, 1000000, MissileEffectManager.eVisualType.eImbued);
 					fx.SetActive(false);
 					visualTarget = null;
@@ -224,6 +225,7 @@ namespace ReikaKalseki.Cryopathy {
 						FUtil.log(this+" cannot spawn missile FX, as the FX is null [loaded missile = "+(maStoredMissileType <= 0 ? "null" : ItemEntry.mEntriesById[maStoredMissileType].Key)+"]!");
 					}
 					else {
+						FUtil.log("Server target from "+this+" to "+currentTarget+" = "+currentTarget.fromRaw());
 						MissileEffectManager.instance.FireMissile(fx.transform.position, currentTarget.xCoord, currentTarget.yCoord, currentTarget.zCoord, fx.transform.forward, 1000000, MissileEffectManager.eVisualType.eImbued);
 						fx.SetActive(false);
 					}
@@ -571,7 +573,7 @@ namespace ReikaKalseki.Cryopathy {
 				return;
 			}
 			if (currentTarget == null && mrCurrentPower >= REQUIRED_PPS && maStoredMissileType > 0) {
-				this.mrCurrentPower -= REQUIRED_PPS;
+				this.mrCurrentPower -= REQUIRED_PPS*LowFrequencyThread.mrPreviousUpdateTimeStep;
 				if (fireCooldown <= 0) {
 					ushort seek = getSeekBlock();
 					if (seek == 0)
