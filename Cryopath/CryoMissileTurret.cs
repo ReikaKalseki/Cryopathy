@@ -26,15 +26,15 @@ namespace ReikaKalseki.Cryopathy {
 	
 	public class CryoMissileTurret : FCoreMachine, PowerConsumerInterface {
 		
-		public static readonly int MIN_RANGE = 64;
+		public static readonly int MIN_RANGE = 48;
 		public static readonly int MAX_RANGE = 512;
 
 		public static readonly float REQUIRED_PPS = 512;
 
 		//cryo bombers are 6, and melters are single target
-		public static readonly int BLAST_RADIUS = 4; //so a 9x9x9
+		public static readonly int BLAST_RADIUS = 7; //15x15x15
 	
-		public CryoMissileTurret(Segment segment, long x, long y, long z, ushort cube, byte flags, ushort lValue, bool loadFromDisk) : base(eSegmentEntity.MissileTurret, SpawnableObjectEnum.MissileTurret_T2, x, y, z, cube, flags, lValue, Vector3.zero, segment) {
+		public CryoMissileTurret(Segment segment, long x, long y, long z, ushort cube, byte flags, ushort lValue, bool loadFromDisk) : base(eSegmentEntity.Mod, SpawnableObjectEnum.MissileTurret_T1, x, y, z, cube, flags, lValue, Vector3.zero, segment) {
 			this.mbNeedsLowFrequencyUpdate = true;
 			this.mbNeedsUnityUpdate = true;
 			this.mnRequestMissileFire = false;
@@ -56,11 +56,6 @@ namespace ReikaKalseki.Cryopathy {
 			writer.Write(this.mrCurrentPower);
 			writer.Write(this.mrLoadTimer);
 			writer.Write(this.fireCooldown);
-			float value = 0f;
-			writer.Write(value); //why does every vanilla block do this
-			writer.Write(value);
-			writer.Write(value);
-			writer.Write(value);
 		}
 
 		public override void Read(BinaryReader reader, int entityVersion) {
@@ -68,10 +63,6 @@ namespace ReikaKalseki.Cryopathy {
 			this.mrCurrentPower = reader.ReadSingle();
 			this.mrLoadTimer = reader.ReadSingle();
 			this.fireCooldown = reader.ReadSingle();
-			float num2 = reader.ReadSingle();
-			num2 = reader.ReadSingle();
-			num2 = reader.ReadSingle();
-			num2 = reader.ReadSingle();
 		}
 
 		public override void ReadNetworkUpdate(BinaryReader reader) {
@@ -119,7 +110,7 @@ namespace ReikaKalseki.Cryopathy {
 				return;
 			}
 			if (this.mWrapper.mGameObjectList[0].gameObject == null) {
-				Debug.LogError("Missile missing game object #0 (GO)?");
+				FUtil.log("Missile "+this+" missing game object #0 (GO)?");
 			}
 			GameObject go = this.mWrapper.mGameObjectList[0].gameObject;
 			this.Turret = go.transform.Search("Missile Launcher Swivel").gameObject;
@@ -212,7 +203,7 @@ namespace ReikaKalseki.Cryopathy {
 				if (this.mrClientShotDelayTimer < 0f) {
 					GameObject fx = getFX();
 					if (!fx) {
-						Debug.LogError("Error, can't set missile graphics as our loaded missile ID was " + maStoredMissileType);
+						FUtil.log("Error @ "+this+", can't set missile graphics as our loaded missile ID was " + (maStoredMissileType <= 0 ? "null" : ItemEntry.mEntriesById[maStoredMissileType].Key));
 						return;
 					}
 					MissileEffectManager.instance.FireMissile(fx.transform.position, visualTarget.xCoord, visualTarget.yCoord, visualTarget.zCoord, fx.transform.forward, 1000000, MissileEffectManager.eVisualType.eImbued);
@@ -229,8 +220,13 @@ namespace ReikaKalseki.Cryopathy {
 			if (this.mnRequestMissileFire) {
 				if (currentTarget != null) {
 					GameObject fx = getFX();
-					MissileEffectManager.instance.FireMissile(fx.transform.position, currentTarget.xCoord, currentTarget.yCoord, currentTarget.zCoord, fx.transform.forward, 1000000, MissileEffectManager.eVisualType.eImbued);
-					fx.SetActive(false);
+					if (!fx) {
+						FUtil.log(this+" cannot spawn missile FX, as the FX is null [loaded missile = "+(maStoredMissileType <= 0 ? "null" : ItemEntry.mEntriesById[maStoredMissileType].Key)+"]!");
+					}
+					else {
+						MissileEffectManager.instance.FireMissile(fx.transform.position, currentTarget.xCoord, currentTarget.yCoord, currentTarget.zCoord, fx.transform.forward, 1000000, MissileEffectManager.eVisualType.eImbued);
+						fx.SetActive(false);
+					}
 					maStoredMissileType = -1;
 					this.mbNoMissilesLoaded = true;
 				}
@@ -352,42 +348,48 @@ namespace ReikaKalseki.Cryopathy {
 		}
 
 		private void CountLoadedMissiles() {
-			mbNoMissilesLoaded = maStoredMissileType > 0;
+			mbNoMissilesLoaded = maStoredMissileType <= 0;
 		}
 
 		private void ApplyDelayedImpact() {
 			if (this.currentTarget == null) {
 				this.impactDelay = 0;
+				FUtil.log("Target nulled before ["+isStunMissile+"] impact?!");
+				isStunMissile = false;
 				return;
 			}
+			//FUtil.log("Impact ["+isStunMissile+"] @ "+currentTarget.fromRaw());
 			this.impactDelay = 0f;
 			
 			//ushort id = getSeekBlock();
 			//if (id <= 0)
 			//	return;
 
+			int n = 0;
 			for (int i = -BLAST_RADIUS; i <= BLAST_RADIUS; i++) {
 				for (int j = -BLAST_RADIUS; j <= BLAST_RADIUS; j++) {
 					for (int k = -BLAST_RADIUS; k <= BLAST_RADIUS; k++) {
 						Vector3 vector = new Vector3((float)i, (float)j, (float)k);
 						if (vector.sqrMagnitude <= (float)(BLAST_RADIUS * BLAST_RADIUS)) {
 							long dx = this.currentTarget.xCoord + (long)i;
-							long dy = this.currentTarget.xCoord + (long)j;
-							long dz = this.currentTarget.xCoord + (long)k;
+							long dy = this.currentTarget.yCoord + (long)j;
+							long dz = this.currentTarget.zCoord + (long)k;
 							Segment segment = base.AttemptGetSegment(dx, dy, dz);
 							if (segment != null) {
-								ushort cube = segment.GetCube(this.currentTarget.xCoord + (long)i, this.currentTarget.yCoord + (long)j, this.currentTarget.zCoord + (long)k);
+								ushort cube = segment.GetCube(dx, dy, dz);
+								//FUtil.log("AoE @ "+i+","+j+","+k+" hits "+FUtil.blockToString(new Coordinate(dx, dy, dz), this));
 								//if (id) {
 								//	WorldScript.instance.BuildFromEntity(segment, dx, dy, dz, place);
 								//	CCCCC.CryoKillCount += 1U;
 								//} do not count as cryo kill since it does not destroy it
-								if (cube == eCubeTypes.ColdCreep) {
+								if (cube == eCubeTypes.ColdCreep && !isStunMissile) {
 									ushort meta = global::TerrainData.GetDefaultValue(eCubeTypes.ColdCreepFluid);
 									WorldScript.instance.BuildFromEntity(segment, dx, dy, dz, eCubeTypes.ColdCreepFluid, meta);
 									segment.SetCubeTypeNoChecking((int)(dx % 16L), (int)(dy % 16L), (int)(dz % 16L), 683, meta);
 									segment.AddedFluid(false);
+									n++;
 								}
-								else if (cube == eCubeTypes.ColdCreepSpawner) {
+								else if (isStunMissile && cube == eCubeTypes.ColdCreepSpawner) {
 									ColdCreepSpawner spawner = segment.FetchEntity(eSegmentEntity.ColdCreepSpawner, dx, dy, dz) as ColdCreepSpawner;
 									if (spawner != null) {
 										CryopathyMod.pauseCryospawner(spawner);
@@ -396,7 +398,11 @@ namespace ReikaKalseki.Cryopathy {
 									else {
 										FUtil.log("Error: Missile impacted a spawner lacking an entity!");
 									}
+									n++;
 								}
+							}
+							else {
+								FUtil.log("Get segment failed @ "+new Coordinate(dx, dy, dz)+" = "+Coordinate.fromRawXYZ(dx, dy, dz));
 							}
 							//else if (this.TargetPaged) {
 							//	Debug.LogError("Nasty error - cryo turret thinks it prepaged segments, but get segment failed?");
@@ -405,18 +411,36 @@ namespace ReikaKalseki.Cryopathy {
 					}
 				}
 			}
+			//FUtil.log(n+" blocks affected.");
+			if (n > 0) {
+				if (isStunMissile)
+					FloatingCombatTextManager.instance.QueueText(currentTarget.xCoord, currentTarget.yCoord, currentTarget.zCoord, 2f, "Impact!", Color.yellow, 5f, 512f);
+				else
+					FloatingCombatTextManager.instance.QueueText(currentTarget.xCoord, currentTarget.yCoord, currentTarget.zCoord, 2f, "Impact melted "+n+" cryoplasm!", Color.yellow, 5f, 512f);
+			}
+			else {
+				FloatingCombatTextManager.instance.QueueText(currentTarget.xCoord, currentTarget.yCoord, currentTarget.zCoord, 2f, "Found no target!", Color.red, 5f, 512f);
+			}
+			isStunMissile = false;
+			currentTarget = null;
 		}
 	
 		private bool isValidTarget(ushort id, Segment s, int i, int j, int k) { //maybe add an AoE check, eg no more than 6 cryo in a 5x5x5 centered on
 			if (id == eCubeTypes.ColdCreepSpawner) { //needs to be exposed
-				int di = i;
-				int dj = j;
-				int dk = k;
-				Segment s2 = s;
-				if (WorldUtil.adjustCoordinateInPossiblyAdjacentSegment(ref s, ref di, ref dj, ref dk, AttemptGetSegment)) {
-					ushort adj = s2.GetCubeNoChecking(di, dj, dk);
-					if (adj == eCubeTypes.ColdCreep || adj == eCubeTypes.ColdCreepFluid) //do not allow targeting of a spawner with cryoplasm next to it
-						return false;
+				for (int a = -1; a <= 1; a++) {
+					for (int b = -1; b <= 1; b++) {
+						for (int c = -1; c <= 1; c++) {
+							int di = i+a;
+							int dj = j+b;
+							int dk = k+c;
+							Segment s2 = s;
+							if (WorldUtil.adjustCoordinateInPossiblyAdjacentSegment(ref s, ref di, ref dj, ref dk, AttemptGetSegment)) {
+								ushort adj = s2.GetCubeNoChecking(di, dj, dk);
+								if (adj == eCubeTypes.ColdCreep || adj == eCubeTypes.ColdCreepFluid) //do not allow targeting of a spawner with cryoplasm next to it
+									return false;
+							}
+						}
+					}
 				}
 			}
 			return true;
@@ -440,8 +464,13 @@ namespace ReikaKalseki.Cryopathy {
 		
 		private Coordinate ScanForTarget(ushort id) {			
 			Coordinate offset = searchQueue.getPosition()*16;
-			if (offset.asVector3().magnitude < MIN_RANGE)
-				return null;
+			
+			while (offset.asVector3().magnitude < MIN_RANGE) {
+				searchQueue.step(); //still step forwards
+				offset = searchQueue.getPosition()*16;
+			}
+			
+			//FUtil.log(this+" scanning "+offset+" for "+id+" ("+TerrainData.mEntries[id].Name+")");
 			
 			long x = this.mnX + offset.xCoord;
 			long y = this.mnY + offset.yCoord;
@@ -470,7 +499,12 @@ namespace ReikaKalseki.Cryopathy {
 		}
 		
 		private void fire(Coordinate c) {
+			string name = ItemEntry.mEntriesById[maStoredMissileType].Name;
+			Coordinate c2 = c.fromRaw();
+			//FUtil.log(this+" firing "+name+" upon "+FUtil.blockToString(c, this)+" @ "+c2);
+			FloatingCombatTextManager.instance.QueueText(this.mnX, mnY, this.mnZ, 1f, "Firing "+name+" to "+c2+"!", Color.yellow, 3f, 128f);
 			currentTarget = c;
+			isStunMissile = maStoredMissileType == SPAWNER_ITEM_ID;
 			Vector3 vec = Vector3.zero;
 			vec.x = (float)(currentTarget.xCoord - this.mnX);
 			vec.y = (float)(currentTarget.yCoord - this.mnY);
@@ -479,17 +513,19 @@ namespace ReikaKalseki.Cryopathy {
 			impactDelay = 1f + vec.magnitude / 32f;
 			this.fireCooldown = 5f + (float)this.mRand.NextDouble();
 			
+			//FUtil.log("vec="+vec+" & delay="+impactDelay.ToString("0.000"));
+			
 			visualTarget = currentTarget;
 			this.mnClientPreviousMissileID = this.maStoredMissileType;
 			this.RequestImmediateNetworkUpdate();
 			this.mnRequestMissileFire = true;
-			this.maStoredMissileType = -1;
+			//this.maStoredMissileType = -1;
 			CentralPowerHub.mnMissilesFired++;
 			
 			this.CountLoadedMissiles();
 			
 			if (this.mbNoMissilesLoaded)
-				this.mrLoadTimer = 15f;
+				this.mrLoadTimer = 5f;
 			else
 				this.fireCooldown = 1f;
 		}
@@ -499,6 +535,12 @@ namespace ReikaKalseki.Cryopathy {
 				this.currentTarget = null;
 				this.mnRequestMissileFire = false;
 				this.CountLoadedMissiles();
+				return;
+			}
+			if (impactDelay > 0) {
+				impactDelay -= LowFrequencyThread.mrPreviousUpdateTimeStep;
+				if (impactDelay <= 0)
+					this.ApplyDelayedImpact();
 				return;
 			}
 			if (this.mrCurrentPower < REQUIRED_PPS) {
@@ -527,11 +569,6 @@ namespace ReikaKalseki.Cryopathy {
 				if (visualTarget != null && !mbLinkedToGO)
 					visualTarget = null;
 				return;
-			}
-			if (impactDelay > 0) {
-				impactDelay -= LowFrequencyThread.mrPreviousUpdateTimeStep;
-				if (impactDelay <= 0)
-					this.ApplyDelayedImpact();
 			}
 			if (currentTarget == null && mrCurrentPower >= REQUIRED_PPS && maStoredMissileType > 0) {
 				this.mrCurrentPower -= REQUIRED_PPS;
@@ -571,11 +608,35 @@ namespace ReikaKalseki.Cryopathy {
 		public bool WantsPowerFromEntity(SegmentEntity entity) {
 			return true;
 		}
-
-		public override HoloMachineEntity CreateHolobaseEntity(Holobase holobase) {
-			HolobaseEntityCreationParameters holobaseEntityCreationParameters = new HolobaseEntityCreationParameters(this);
-			holobaseEntityCreationParameters.AddVisualisation(holobase.mPreviewCube);
-			return holobase.CreateHolobaseEntity(holobaseEntityCreationParameters);
+		
+		public override string GetPopupText() {
+			string ret = base.GetPopupText();
+			if (isForcedOffline()) {
+				ret += "\nC5 Offline! Defences offline!";
+				return ret;
+			}
+			ret += "\nPower: "+mrCurrentPower+"/"+mrMaxPower+" (needs "+REQUIRED_PPS+" PPS)";
+			if (WorldUtil.getBiome(this) != WorldUtil.Biomes.COLDCAVES) {
+				ret += "\nMust be placed in the cold caverns!";
+				return ret;
+			}
+			if (maStoredMissileType > 0)
+				ret += "\nHolding "+ItemEntry.mEntriesById[maStoredMissileType].Name;
+			else
+				ret += "\nNo ammo!";
+			if (maStoredMissileType > 0 && mbNoMissilesLoaded)
+				ret += "\nERROR: Has no missiles while holding a missile?!";
+			ret += "\nScanning position: "+(searchQueue.getPosition()*16).offset(mnX-WorldUtil.COORD_OFFSET, mnY-WorldUtil.COORD_OFFSET, mnZ-WorldUtil.COORD_OFFSET).ToString();
+			if (impactDelay > 0) {
+				ret += "\nWaiting for impact";
+			}
+			else if (fireCooldown > 0) {
+				ret += "\nNext shot in "+fireCooldown.ToString("0.0")+"s";
+			}
+			else if (mrLoadTimer > 0) {
+				ret += "\nWakes in "+fireCooldown.ToString("0.0")+"s";
+			}
+			return ret;
 		}
 
 		private bool mbLinkedToGO;
@@ -632,6 +693,8 @@ namespace ReikaKalseki.Cryopathy {
 		public float mrMaxTransferRate = 5000;
 		
 		private Coordinate currentTarget;
+		
+		private bool isStunMissile;
 
 		private float impactDelay;
 	

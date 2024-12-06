@@ -48,8 +48,10 @@ namespace ReikaKalseki.Cryopathy
 	public override ModCreateSegmentEntityResults CreateSegmentEntity(ModCreateSegmentEntityParameters parameters) {
 		ModCreateSegmentEntityResults modCreateSegmentEntityResults = new ModCreateSegmentEntityResults();
 		try {
-			if (parameters.Cube == missileTurretBlockID)
+			if (parameters.Cube == missileTurretBlockID) {
+				parameters.ObjectType = SpawnableObjectEnum.MissileTurret_T1;
 				modCreateSegmentEntityResults.Entity = new CryoMissileTurret(parameters.Segment, parameters.X, parameters.Y, parameters.Z, parameters.Cube, parameters.Flags, parameters.Value, parameters.LoadFromDisk);
+			}
 		}
 		catch (Exception e) {
 			FUtil.log(e.ToString());

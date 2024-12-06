@@ -81,7 +81,7 @@
 	</CraftData>
 	<CraftData>
 		<Key>ReikaKalseki.CryoMissileTurret</Key>
-		<Category>manufacturing</Category>
+		<Category>defences</Category>
 		<Tier>4</Tier>
 		<CraftedKey>ReikaKalseki.CryoMissileTurret_Key</CraftedKey>
 		<CraftedAmount>1</CraftedAmount>
