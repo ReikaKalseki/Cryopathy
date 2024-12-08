@@ -215,9 +215,13 @@ namespace ReikaKalseki.Cryopathy {
 								ushort id = c.getBlock(segment);
 								if (id == eCubeTypes.ColdCreep || id == eCubeTypes.ColdCreepFluid) {
 									if (dist <= BLAST_RADIUS) {
-										WorldScript.instance.BuildFromEntity(segment, c.xCoord, c.yCoord, c.zCoord, eCubeTypes.Air, TerrainData.DefaultAirValue);
-										CCCCC.CryoKillCount++;
-										destroy++;
+										if (WorldScript.instance.BuildFromEntity(segment, c.xCoord, c.yCoord, c.zCoord, eCubeTypes.Air, TerrainData.DefaultAirValue)) {
+											CCCCC.CryoKillCount++;
+											destroy++;
+											if (UnityEngine.Random.Range(0F, 1F) < 0.025*CryopathyMod.getConfig().getFloat(CRConfig.ConfigEntries.DROP_CHANCE)) {
+								    			FUtil.dropItem(c.xCoord, c.yCoord, c.zCoord, "ReikaKalseki.CryoExtract");
+								    		}
+										}
 									}
 									else if (id == eCubeTypes.ColdCreep) {
 										segment.SetCubeTypeNoChecking((int)(c.xCoord % 16L), (int)(c.yCoord % 16L), (int)(c.zCoord % 16L), eCubeTypes.ColdCreepFluid, TerrainData.GetDefaultValue(eCubeTypes.ColdCreepFluid));

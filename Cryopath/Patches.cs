@@ -148,7 +148,7 @@ namespace ReikaKalseki.Cryopathy {
 			return codes.AsEnumerable();
 		}
 	}
-	
+	/*
 	[HarmonyPatch(typeof(CryoMine))]
 	[HarmonyPatch("LowFrequencyUpdate")]
 	public static class CryoDropPatch_Cryomine {
@@ -171,7 +171,7 @@ namespace ReikaKalseki.Cryopathy {
 			}
 			return codes.AsEnumerable();
 		}
-	}
+	}*/
 	
 	[HarmonyPatch(typeof(CreepLancer))]
 	[HarmonyPatch("AttemptSetToAir")]
