@@ -57,6 +57,8 @@ namespace ReikaKalseki.Cryopathy {
 		
 		private int powerBonus;
 		
+		private bool exploded;
+		
 		private bool spawnExplodeFX;
 	
 		public SmarterCryoMine(ModCreateSegmentEntityParameters parameters) : base(parameters) {
@@ -125,6 +127,15 @@ namespace ReikaKalseki.Cryopathy {
 				this.mrScanDelay -= LowFrequencyThread.mrPreviousUpdateTimeStep;
 				return;
 			}
+			
+			if (mrRemoveTimer > 0) {
+				this.mrRemoveTimer -= LowFrequencyThread.mrPreviousUpdateTimeStep;
+				if (this.mrRemoveTimer <= 0f) {
+					WorldScript.instance.BuildFromEntity(this.mSegment, this.mnX, this.mnY, this.mnZ, eCubeTypes.Air, TerrainData.DefaultAirValue);
+					return;
+				}
+			}
+			
 			if (this.mrRemoveTimer <= 0f || !this.mbScanned) {
 				if (!this.mbScanned) {
 					for (int i = -(MELT_RADIUS + 1); i <= MELT_RADIUS + 1; i++) {
@@ -173,6 +184,9 @@ namespace ReikaKalseki.Cryopathy {
 				}
 				return;
 			}
+			
+			if (exploded)
+				return;
 			
 			int r = MELT_RADIUS+this.powerBonus;			
 			int r2 = r*3/2;
@@ -232,12 +246,19 @@ namespace ReikaKalseki.Cryopathy {
 			foreach (Segment s in rerender)
 				s.RequestRegenerateGraphics();
 			
-			spawnExplodeFX = true;
-			
-			this.mrRemoveTimer -= LowFrequencyThread.mrPreviousUpdateTimeStep;
-			if (this.mrRemoveTimer <= 0f) {
-				WorldScript.instance.BuildFromEntity(this.mSegment, this.mnX, this.mnY, this.mnZ, eCubeTypes.Air, TerrainData.DefaultAirValue);
+			Player ep = WorldScript.mLocalPlayer;
+			Vector3 epdist = new Vector3(mnX-ep.mnWorldX, mnY-ep.mnWorldY, mnZ-ep.mnWorldZ);
+			float dd = epdist.magnitude;
+			if (dd <= MELT_RADIUS) {
+				float damage = Mathf.Lerp(0, 30, Mathf.Clamp01(MELT_RADIUS-dd)/MELT_RADIUS);
+				if (damage > 0) {
+					FUtil.log("Player was close at dist "+dd+", dmg = "+damage);
+					SurvivalPowerPanel.HurtWithReason(damage, false, "You are just as explodable as cryoplasm");
+				}
 			}
+			
+			spawnExplodeFX = true;
+			exploded = true;
 		}
 	
 		private void StartGas() {
