@@ -26,8 +26,8 @@ namespace ReikaKalseki.Cryopathy {
 	
 	public class SmarterCryoMine : FCoreMachine {
 		
-		public static readonly int BLAST_RADIUS = 6; //vanilla is 5
-		public static readonly int MELT_RADIUS = 9;
+		public static readonly int BLAST_RADIUS = 5; //vanilla is 5
+		public static readonly int MELT_RADIUS = 8;
 		
 		//private int mnDepthScanned;
 	
@@ -56,6 +56,8 @@ namespace ReikaKalseki.Cryopathy {
 		private int lookDirection;
 		
 		private int powerBonus;
+		
+		private bool spawnExplodeFX;
 	
 		public SmarterCryoMine(ModCreateSegmentEntityParameters parameters) : base(parameters) {
 			this.mUp = SegmentCustomRenderer.GetRotationQuaternion(mFlags) * Vector3.up;
@@ -90,6 +92,24 @@ namespace ReikaKalseki.Cryopathy {
 			if (this.mbScanned && !this.mbVisuallyScanned) {
 				go.transform.Search("ActiveLight").gameObject.SetActive(true);
 				this.mbVisuallyScanned = true;
+			}
+			
+			if (spawnExplodeFX) {
+				Vector3 position = WorldScript.instance.mPlayerFrustrum.GetCoordsToUnity(mnX, mnY, mnZ) + WorldHelper.DefaultBlockOffset;
+				SurvivalParticleManager.instance.CryoDust.transform.position = position;
+				SurvivalParticleManager.instance.CryoDust.Emit(60);
+				if (AudioHUDManager.instance.mSource && AudioHUDManager.instance.mChargeExplosion) {
+					AudioHUDManager.instance.mSource.pitch = 0.5F;
+					AudioHUDManager.instance.mSource.transform.position = position;
+					AudioHUDManager.instance.mSource.PlayOneShot(AudioHUDManager.instance.mChargeExplosion, 3F);
+				}
+				else if (AudioHUDManager.instance.mSource) {
+					FUtil.log("Sound was null?");
+				}
+				else {
+					FUtil.log("Sound source was null?");
+				}
+				spawnExplodeFX = false;
 			}
 		}
 	
@@ -167,9 +187,12 @@ namespace ReikaKalseki.Cryopathy {
 			
 			int destroy = 0;
 			int melt = 0;
+			HashSet<Segment> rerender = new HashSet<Segment>();
 			for (int l = -rx; l <= rx; l++) {
 				for (int m = -ry; m <= ry; m++) {
 					for (int n = -rz; n <= rz; n++) {
+						if (l == 0 && m == 0 && n == 0)
+							continue;
 						double dist = MathUtil.py3d(l/fx, m/fy, n/fz);
 						if (dist <= r) {
 							Coordinate c = new Coordinate(mnX+l+(long)(mUp.x*3), mnY+m+(long)(mUp.y*3), mnZ+n+(long)(mUp.z*3));
@@ -187,6 +210,7 @@ namespace ReikaKalseki.Cryopathy {
 										segment.AddedFluid(false);
 										melt++;
 									}
+									rerender.Add(segment);
 								}
 								else if (id == eCubeTypes.CryoMine) {
 									SmarterCryoMine cryoMine = segment.FetchEntity(eSegmentEntity.CryoMine, c.xCoord, c.yCoord, c.zCoord) as SmarterCryoMine;
@@ -203,7 +227,12 @@ namespace ReikaKalseki.Cryopathy {
 				}
 			}
 			
-			FUtil.log("Destroyed "+destroy+"; Melted "+melt);
+			FUtil.log("Destroyed "+destroy+"; Melted "+melt+"; rerendering "+rerender.Count+" segments");
+			
+			foreach (Segment s in rerender)
+				s.RequestRegenerateGraphics();
+			
+			spawnExplodeFX = true;
 			
 			this.mrRemoveTimer -= LowFrequencyThread.mrPreviousUpdateTimeStep;
 			if (this.mrRemoveTimer <= 0f) {
