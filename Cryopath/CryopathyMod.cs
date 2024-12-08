@@ -35,6 +35,8 @@ namespace ReikaKalseki.Cryopathy
         
         runHarmony();
         
+		registrationData.RegisterEntityHandler(eSegmentEntity.CryoMine);
+        
 		registrationData.RegisterEntityHandler("ReikaKalseki.CryoMissileTurret");
 		TerrainDataEntry terrainDataEntry;
 		TerrainDataValueEntry terrainDataValueEntry;
@@ -51,6 +53,10 @@ namespace ReikaKalseki.Cryopathy
 			if (parameters.Cube == missileTurretBlockID) {
 				parameters.ObjectType = SpawnableObjectEnum.MissileTurret_T1;
 				modCreateSegmentEntityResults.Entity = new CryoMissileTurret(parameters.Segment, parameters.X, parameters.Y, parameters.Z, parameters.Cube, parameters.Flags, parameters.Value, parameters.LoadFromDisk);
+			}
+			else if (parameters.Type == eSegmentEntity.CryoMine) {
+				parameters.ObjectType = SpawnableObjectEnum.CryoMine;
+				modCreateSegmentEntityResults.Entity = new SmarterCryoMine(parameters);
 			}
 		}
 		catch (Exception e) {
@@ -206,7 +212,8 @@ namespace ReikaKalseki.Cryopathy
 									bool magma = cube == eCubeTypes.Magma || cube == eCubeTypes.MagmaFluid;
 									bool cryo = cube == eCubeTypes.ColdCreep || cube == eCubeTypes.ColdCreepFluid;
 									if (magma || cryo) {
-										if (WorldScript.instance.BuildFromEntity(segment, x, y, z, eCubeTypes.Air, global::TerrainData.DefaultAirValue)) {
+										if (WorldScript.instance.BuildFromEntity(segment, x, y, z, eCubeTypes.Air, TerrainData.DefaultAirValue)) {
+											segment.AddedFluid(false);
 											float rand = UnityEngine.Random.Range(0F, 1F)/config.getFloat(CRConfig.ConfigEntries.MAGMA_DROP_CHANCE);
 											if (magma) {
 												DroppedItemData stack = ItemManager.DropNewCubeStack(eCubeTypes.MagmaFluid, 0, 1, x, y, z, Vector3.zero);
