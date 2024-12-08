@@ -385,7 +385,7 @@ namespace ReikaKalseki.Cryopathy {
 								//	CCCCC.CryoKillCount += 1U;
 								//} do not count as cryo kill since it does not destroy it
 								if (cube == eCubeTypes.ColdCreep && !isStunMissile) {
-									ushort meta = global::TerrainData.GetDefaultValue(eCubeTypes.ColdCreepFluid);
+									ushort meta = TerrainData.GetDefaultValue(eCubeTypes.ColdCreepFluid);	
 									WorldScript.instance.BuildFromEntity(segment, dx, dy, dz, eCubeTypes.ColdCreepFluid, meta);
 									segment.SetCubeTypeNoChecking((int)(dx % 16L), (int)(dy % 16L), (int)(dz % 16L), 683, meta);
 									segment.AddedFluid(false);
@@ -427,25 +427,34 @@ namespace ReikaKalseki.Cryopathy {
 			currentTarget = null;
 		}
 	
-		private bool isValidTarget(ushort id, Segment s, int i, int j, int k) { //maybe add an AoE check, eg no more than 6 cryo in a 5x5x5 centered on
-			if (id == eCubeTypes.ColdCreepSpawner) { //needs to be exposed
-				for (int a = -1; a <= 1; a++) {
-					for (int b = -1; b <= 1; b++) {
-						for (int c = -1; c <= 1; c++) {
-							int di = i+a;
-							int dj = j+b;
-							int dk = k+c;
-							Segment s2 = s;
-							if (WorldUtil.adjustCoordinateInPossiblyAdjacentSegment(ref s, ref di, ref dj, ref dk, AttemptGetSegment)) {
-								ushort adj = s2.GetCubeNoChecking(di, dj, dk);
-								if (adj == eCubeTypes.ColdCreep || adj == eCubeTypes.ColdCreepFluid) //do not allow targeting of a spawner with cryoplasm next to it
-									return false;
-							}
+		private bool isValidBlockTarget(ushort id, Segment s, int i, int j, int k) {
+			return true;
+		}
+	
+		private bool isValidSpawnerTarget(ColdCreepSpawner spawner) { //maybe add an AoE check, eg no more than 6 cryo in a 5x5x5 centered on
+			const int r0 = 2;
+			int cryo = 0;
+			for (int a = -r0; a <= r0; a++) {
+				for (int b = -r0; b <= r0; b++) {
+					for (int c = -r0; c <= r0; c++) {
+						bool inner = Math.Abs(a) <= 1 && Math.Abs(b) <= 1 && Math.Abs(c) <= 1;
+						long dx = spawner.mnX+a;
+						long dy = spawner.mnY+b;
+						long dz = spawner.mnZ+c;
+						Segment s = AttemptGetSegment(dx, dy, dz);
+						if (!s.isSegmentValid())
+							return false;
+						ushort adj = s.GetCube(dx, dy, dz);
+						if (adj == eCubeTypes.ColdCreep || adj == eCubeTypes.ColdCreepFluid) {
+							if (inner) //do not allow targeting of a spawner with cryoplasm next to it
+								return false;
+							else
+								cryo++;
 						}
 					}
 				}
 			}
-			return true;
+			return cryo <= 6;
 		}
 	
 		private Coordinate findTarget(ushort id, long x, long y, long z, out Segment s) {
@@ -455,7 +464,7 @@ namespace ReikaKalseki.Cryopathy {
 			for (int j = 15; j >= 0; j--) {
 				for (int i = 0; i < 16; i++) {
 					for (int k = 0; k < 16; k++) {
-						if (s.GetCubeNoChecking(i, j, k) == id && isValidTarget(id, s, i, j, k)) {
+						if (s.GetCubeNoChecking(i, j, k) == id && isValidBlockTarget(id, s, i, j, k)) {
 							return new Coordinate(s.baseX + (long)i, s.baseY + (long)j, s.baseZ + (long)k);
 						}
 					}
@@ -464,7 +473,7 @@ namespace ReikaKalseki.Cryopathy {
 			return null;
 		}
 		
-		private Coordinate ScanForTarget(ushort id) {			
+		private Coordinate ScanForBlock(ushort id) {
 			Coordinate offset = searchQueue.getPosition()*16;
 			
 			while (offset.asVector3().magnitude < MIN_RANGE) {
@@ -579,7 +588,21 @@ namespace ReikaKalseki.Cryopathy {
 					if (seek == 0)
 						return;
 					
-					Coordinate c = ScanForTarget(seek);
+					Coordinate c = null;
+					if (seek == eCubeTypes.ColdCreepSpawner) {
+						for (int i = 0; i < 8; i++) {
+							ColdCreepSpawner spawner = CryopathyMod.getCryospawner(i, AttemptGetSegment);
+							if (spawner != null && !spawner.mbDelete) {
+								if (isValidSpawnerTarget(spawner)) {
+									c = new Coordinate(spawner.mnX, spawner.mnY, spawner.mnZ); //do not offset down
+								}
+							}
+						}
+					}
+					else {
+						c = ScanForBlock(seek);
+					}
+					
 					if (c != null)
 						fire(c);
 				}

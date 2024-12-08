@@ -17,6 +17,8 @@ namespace ReikaKalseki.Cryopathy
     private static Config<CRConfig.ConfigEntries> config;
 
     public static ushort missileTurretBlockID;
+		
+	private static readonly Coordinate[] cryoSpawners = new Coordinate[8];
     
     public CryopathyMod() : base("Cryopathy") {
     	config = new Config<CRConfig.ConfigEntries>(this);
@@ -72,9 +74,31 @@ namespace ReikaKalseki.Cryopathy
     }
     
     public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {
+    	setCryospawner(spawner);
     	if (!spawnerPauseTimes.ContainsKey(spawner.mnID))
     		return false;
     	return Time.time-spawnerPauseTimes[spawner.mnID] < config.getFloat(CRConfig.ConfigEntries.STUN_TIME);
+    }
+		
+    public static ColdCreepSpawner getCryospawner(int index, Func<long, long, long, Segment> segmentFetch) {
+    	if (CCCCC.mabCornerDestroyed[index] || cryoSpawners[index] == null)
+    		return null;
+    	Coordinate c = cryoSpawners[index];
+    	Segment s = c.getSegment(segmentFetch);
+    	if (!s.isSegmentValid())
+    		return null;
+    	return s.FetchEntity(eSegmentEntity.ColdCreepSpawner, c.xCoord, c.yCoord, c.zCoord) as ColdCreepSpawner;
+    }
+    
+    public static void setCryospawner(int idx, long x, long y, long z) {
+    	if (cryoSpawners[idx] == null || !cryoSpawners[idx].equals(x, y, z)) {
+    		cryoSpawners[idx] = new Coordinate(x, y, z);
+    		FUtil.log("Caching cryospawner #"+idx+" at "+cryoSpawners[idx]+" ["+cryoSpawners[idx].fromRaw()+"]");
+    	}
+    }
+    
+    public static void setCryospawner(ColdCreepSpawner cc) {
+    	setCryospawner(cc.mnID, cc.mnX, cc.mnY, cc.mnZ); //do not offset down
     }
     
     public static bool shouldAvoidBlock(ushort ID) {
