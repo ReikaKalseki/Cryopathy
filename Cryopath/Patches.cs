@@ -229,7 +229,9 @@ namespace ReikaKalseki.Cryopathy {
 				Label lb = gen.DefineLabel();
 				CodeInstruction[] add = new CodeInstruction[]{
 					new CodeInstruction(OpCodes.Ldarg_0),
-					InstructionHandlers.createMethodCall(typeof(CryopathyMod), "isCryospawnerPaused", false, new Type[]{typeof(ColdCreepSpawner)}),
+					new CodeInstruction(OpCodes.Ldarg_0),
+					new CodeInstruction(OpCodes.Ldfld, InstructionHandlers.convertFieldOperand(typeof(ColdCreepSpawner), "mnThisID")),
+					InstructionHandlers.createMethodCall(typeof(CryopathyMod), "isCryospawnerPaused", false, new Type[]{typeof(ColdCreepSpawner), typeof(int)}),
 					new CodeInstruction(OpCodes.Brfalse, lb),
 				};
 				codes[0].labels.Add(lb);

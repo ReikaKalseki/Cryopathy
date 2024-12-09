@@ -3,7 +3,7 @@ using System.IO;    //For data read/write methods
 using System;    //For data read/write methods
 using System.Collections.Generic;   //Working with Lists and Collections
 using System.Linq;   //More advanced manipulation of lists/collections
-using System.Threading;
+using System.Reflection;
 using Harmony;
 using ReikaKalseki;
 using ReikaKalseki.FortressCore;
@@ -18,6 +18,7 @@ namespace ReikaKalseki.Cryopathy
 
     public static ushort missileTurretBlockID;
 		
+	private static readonly float[] spawnerPauseTimes = new float[8];
 	private static readonly Coordinate[] cryoSpawners = new Coordinate[8];
     
     public CryopathyMod() : base("Cryopathy") {
@@ -66,18 +67,17 @@ namespace ReikaKalseki.Cryopathy
 		}
 		return modCreateSegmentEntityResults;
 	}
-    
-    private static Dictionary<int, float> spawnerPauseTimes = new Dictionary<int, float>();
+	
+	private static readonly FieldInfo spawnerID = typeof(ColdCreepSpawner).GetField("mnThisID", BindingFlags.Instance | BindingFlags.NonPublic);
     
     public static void pauseCryospawner(ColdCreepSpawner spawner) {
-    	spawnerPauseTimes[spawner.mnID] = Time.time;
+		int id = (int)spawnerID.GetValue(spawner);
+    	spawnerPauseTimes[id] = Time.time;
     }
     
-    public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {
-    	setCryospawner(spawner);
-    	if (!spawnerPauseTimes.ContainsKey(spawner.mnID))
-    		return false;
-    	return Time.time-spawnerPauseTimes[spawner.mnID] < config.getFloat(CRConfig.ConfigEntries.STUN_TIME);
+    public static bool isCryospawnerPaused(ColdCreepSpawner spawner, int id) {
+    	setCryospawner(spawner, id);
+    	return Time.time-spawnerPauseTimes[id] < config.getFloat(CRConfig.ConfigEntries.STUN_TIME);
     }
 		
     public static ColdCreepSpawner getCryospawner(int index, Func<long, long, long, Segment> segmentFetch) {
@@ -97,8 +97,8 @@ namespace ReikaKalseki.Cryopathy
     	}
     }
     
-    public static void setCryospawner(ColdCreepSpawner cc) {
-    	setCryospawner(cc.mnID, cc.mnX, cc.mnY, cc.mnZ); //do not offset down
+    public static void setCryospawner(ColdCreepSpawner cc, int idx) {
+    	setCryospawner(idx, cc.mnX, cc.mnY, cc.mnZ); //do not offset down
     }
     
     public static bool shouldAvoidBlock(ushort ID) {
