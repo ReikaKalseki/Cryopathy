@@ -47,6 +47,20 @@
 		</ResearchRequirements>		
 	</ItemEntry>
 	<ItemEntry>
+		<Key>ReikaKalseki.CryoClearingMissile</Key>
+		<Name>Cryo Clearing Missile</Name>
+		<Plural>Cryo Clearing Missiles</Plural>
+		<Type>ItemStack</Type>	
+		<Object>ClusterMissileObj</Object>
+		<Sprite>ReikaKalseki.CryoClearingMissile</Sprite>
+		<!-- Atlas optional -->
+		<Category>Consumable</Category>
+		<ResearchRequirements>
+			<Research>missiledefence</Research>
+			<Research>T4defence2</Research>
+		</ResearchRequirements>		
+	</ItemEntry>
+	<ItemEntry>
 		<Key>ReikaKalseki.CryoSpawnerMissile</Key>
 		<Name>Cryospawner Stun Missile</Name>
 		<Plural>Cryospawner Stun Missiles</Plural>

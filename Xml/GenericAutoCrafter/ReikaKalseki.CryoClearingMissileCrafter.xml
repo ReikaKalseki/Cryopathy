@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GenericAutoCrafterDataEntry xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<FriendlyName>Cryo Clearing Missile Crafter</FriendlyName>
+	<SpawnObject>PoisonMissileCrafterObj</SpawnObject>
+	<Value>ReikaKalseki.CryoClearingMissileCrafter</Value>
+			
+	<PowerUsePerSecond>0</PowerUsePerSecond>  <!-- optional -->
+	<PowerTransferPerSecond>0</PowerTransferPerSecond>  <!-- optional -->
+	<MaxPowerStorage>0</MaxPowerStorage>  <!-- optional -->
+	<CraftingString>Loading...</CraftingString>  <!-- optional -->
+	<WorkingAnimation000></WorkingAnimation000>  <!-- optional -->
+	
+	<CraftTime>10</CraftTime>  <!-- optional -->
+	<OptionalIngredients>false</OptionalIngredients>  <!-- optional -->
+	<Recipe>
+		<Key>ReikaKalseki.CryoClearingMissile</Key>
+		<CraftedKey>ReikaKalseki.CryoClearingMissile</CraftedKey>
+		<CraftedAmount>1</CraftedAmount>
+		<Costs>
+			<CraftCost>
+				<Key>ReikaKalseki.CryoMelterMissile</Key>
+				<Amount>1</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>CompressedChlorine</Key>
+				<Amount>4</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>PowerBoosterMK5</Key>
+				<Amount>2</Amount>
+			</CraftCost>
+		</Costs>
+		<Description>Loads a melter missile with a more destructive payload, allowing it to completely destroy cryoplasm.</Description>
+	</Recipe>
+</GenericAutoCrafterDataEntry>

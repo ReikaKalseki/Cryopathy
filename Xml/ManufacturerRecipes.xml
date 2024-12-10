@@ -56,6 +56,30 @@
 		<ResearchCost>5</ResearchCost>
 	</CraftData>
 	<CraftData>
+		<Key>ReikaKalseki.CryoClearingMissileCrafter</Key>
+		<Category>manufacturing</Category>
+		<Tier>4</Tier>
+		<CraftedKey>ReikaKalseki.CryoClearingMissileCrafter</CraftedKey>
+		<CraftedAmount>1</CraftedAmount>
+		<Costs>
+			<CraftCost>
+				<Key>TitaniumHousing</Key>
+				<Amount>20</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>ImbuedMachineBlock</Key>
+				<Amount>30</Amount>
+			</CraftCost>
+		</Costs>
+		<ResearchRequirements>
+			<Research>missiledefence</Research>
+			<Research>T4defence2</Research>		
+		</ResearchRequirements>
+		<Description>Loads a melter missile with a more destructive payload, allowing it to completely destroy cryoplasm.</Description>
+		<Hint></Hint>
+		<ResearchCost>5</ResearchCost>
+	</CraftData>
+	<CraftData>
 		<Key>ReikaKalseki.CryoSpawnerMissileCrafter</Key>
 		<Category>manufacturing</Category>
 		<Tier>4</Tier>

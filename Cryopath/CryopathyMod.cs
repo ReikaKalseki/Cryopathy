@@ -75,6 +75,11 @@ namespace ReikaKalseki.Cryopathy
     	spawnerPauseTimes[id] = Time.time;
     }
     
+    public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {
+    	int id = (int)spawnerID.GetValue(spawner);
+    	return isCryospawnerPaused(spawner, id);
+    }
+    
     public static bool isCryospawnerPaused(ColdCreepSpawner spawner, int id) {
     	setCryospawner(spawner, id);
     	return Time.time-spawnerPauseTimes[id] < config.getFloat(CRConfig.ConfigEntries.STUN_TIME);

@@ -15,7 +15,13 @@
 				<Name>Cryo Melter Missile Crafter</Name>
 				<IconName>ReikaKalseki.CryoMelterMissileCrafter</IconName>
 				<Description>Loads a missile with sulfur to enable it to melt a large volume of cryoplasm on impact.</Description>
-			</ValueEntry>		
+			</ValueEntry>	
+			<ValueEntry>
+				<Key>ReikaKalseki.CryoClearingMissileCrafter</Key>
+				<Name>Cryo Clearing Missile Crafter</Name>
+				<IconName>ReikaKalseki.CryoClearingMissileCrafter</IconName>
+				<Description>Loads a melter missile with a more destructive payload, allowing it to completely destroy cryoplasm.</Description>
+			</ValueEntry>
 			<ValueEntry>
 				<Key>ReikaKalseki.CryoSpawnerMissileCrafter</Key>
 				<Name>Cryospawner Stun Missile Programmer</Name>
