@@ -112,7 +112,7 @@ namespace ReikaKalseki.Cryopathy
     
     public static ushort getCubeForCryoCheckAt(Segment s, long x, long y, long z, ushort cryoToBuild) { //their code returns false if the returned value from getCube == cryoToBuild
     	ushort real = s.GetCube(x, y, z);
-    	return CubeHelper.IsMachine(real) || CubeHelper.HasEntity(real) ? cryoToBuild : real;
+    	return CubeHelper.IsMachine(real) || CubeHelper.HasEntity(real) || (config.getBoolean(CRConfig.ConfigEntries.CRYO_ORE_BLOCK) && CubeHelper.IsOre(real)) ? cryoToBuild : real;
     }
     
     private static Coordinate explodeFXQueued = null;

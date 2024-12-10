@@ -11,6 +11,7 @@ namespace ReikaKalseki.Cryopathy
 	public class CRConfig
 	{		
 		public enum ConfigEntries {
+			[ConfigEntry("Completely Block Cryoplasm From Destroying Ore", true)]CRYO_ORE_BLOCK,
 			[ConfigEntry("Stun Missile Effect Duration (seconds)", typeof(int), 15, 5, 60, 0)]STUN_TIME,
 			[ConfigEntry("Cryo DNA Drop Chance Multiplier", typeof(float), 1F, 0.2F, 10F, 0)]DROP_CHANCE,
 			[ConfigEntry("Magma Drop Chance Multiplier", typeof(float), 1F, 0.2F, 10F, 0)]MAGMA_DROP_CHANCE,
