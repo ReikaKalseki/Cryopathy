@@ -103,7 +103,7 @@ namespace ReikaKalseki.Cryopathy {
 		
 		private readonly HashSet<ushort> searchIDs = new HashSet<ushort>();
 	
-		public CryoMissileTurret(Segment segment, long x, long y, long z, ushort cube, byte flags, ushort lValue, bool loadFromDisk) : base(eSegmentEntity.Mod, SpawnableObjectEnum.MissileTurret_T1, x, y, z, cube, flags, lValue, Vector3.zero, segment) {
+		public CryoMissileTurret(ModCreateSegmentEntityParameters parameters) : base(parameters) {
 			this.mbNeedsLowFrequencyUpdate = true;
 			this.mbNeedsUnityUpdate = true;
 			this.mnRequestMissileFire = false;
@@ -205,18 +205,6 @@ namespace ReikaKalseki.Cryopathy {
 					fx.SetActive(true);
 			}
 		}
-		
-		private bool isForcedOffline() {
-			return CentralPowerHub.Destroyed || !CCCCC.ActiveAndWorking || !anyCryoExists();
-		}
-		
-		private bool anyCryoExists() {
-			for (int i = 0; i < 8; i++) {
-				if (!CCCCC.mabCornerDestroyed[i])
-					return true;
-			}
-			return false;
-		}
 
 		private void DoVisualAiming() {
 			if (this.mrCurrentPower < REQUIRED_PPS) {
@@ -225,7 +213,7 @@ namespace ReikaKalseki.Cryopathy {
 			else {
 				this.mrLowPowerTime *= 0.5f;
 			}
-			bool flag = mrLowPowerTime > 1 || isForcedOffline();
+			bool flag = mrLowPowerTime > 1 || FUtil.isFFDefenceOffline();
 			if (!flag && visualTarget == null && this.currentTarget == null) {
 				if (this.mbNoMissilesLoaded) {
 					flag = true;
@@ -630,7 +618,7 @@ namespace ReikaKalseki.Cryopathy {
 		}
 
 		public override void LowFrequencyUpdate() {
-			if (isForcedOffline()) {
+			if (FUtil.isFFDefenceOffline()) {
 				this.currentTarget = null;
 				this.mnRequestMissileFire = false;
 				this.CountLoadedMissiles();
@@ -724,8 +712,8 @@ namespace ReikaKalseki.Cryopathy {
 		
 		public override string GetPopupText() {
 			string ret = base.GetPopupText();
-			if (isForcedOffline()) {
-				ret += "\nC5 Offline! Defences offline!";
+			if (FUtil.isFFDefenceOffline()) {
+				ret += "\n"+PersistentSettings.GetString("C5_Offline_defences_offline");
 				return ret;
 			}
 			ret += "\nPower: "+mrCurrentPower+"/"+mrMaxPower+" (needs "+REQUIRED_PPS+" PPS)";

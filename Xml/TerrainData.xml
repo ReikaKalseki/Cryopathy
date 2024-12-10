@@ -62,5 +62,38 @@
 				<Description>Fires special missiles upon levitating cryoplasm and its spawners.</Description>
 			</ValueEntry>
 		</Values>
+  </TerrainDataEntry>
+  <TerrainDataEntry>
+    <Key>ReikaKalseki.MagmaTurret</Key>
+    <Name>Magma Fountain Turret</Name>
+    <Description>Sprays magma in all directions to obliterate cryoplasm in a substantial radius around it, though can only be used close to the magma source.</Description>
+		<LayerType>PrimaryTerrain</LayerType>
+		<TopTexture>187</TopTexture>
+		<SideTexture>187</SideTexture>
+		<BottomTexture>187</BottomTexture>
+		<GUITexture>187</GUITexture>
+		<isSolid>false</isSolid>
+		<isTransparent>true</isTransparent>
+		<isHollow>false</isHollow>
+		<isGlass>false</isGlass>
+		<isPassable>false</isPassable>
+		<hasObject>true</hasObject>
+		<hasEntity>true</hasEntity>
+		<Category>Machine</Category>
+		<AudioWalkType>Metal</AudioWalkType>
+		<AudioBuildType>Dirt</AudioBuildType>
+		<AudioDestroyType>None</AudioDestroyType>
+		<tags>
+			<tag>Machinery</tag>
+		</tags>
+		<Values>
+			<ValueEntry>
+				<Value>0</Value>
+				<Key>ReikaKalseki.MagmaTurret_Key</Key>
+				<Name>Magma Fountain Turret</Name>
+				<IconName>ReikaKalseki.MagmaTurret</IconName>
+				<Description>Sprays magma in all directions to obliterate cryoplasm in a substantial radius around it, though can only be used close to the magma source.</Description>
+			</ValueEntry>
+		</Values>
   </TerrainDataEntry>		
 </ArrayOfTerrainDataEntry>

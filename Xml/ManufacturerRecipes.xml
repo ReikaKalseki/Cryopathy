@@ -135,4 +135,39 @@
 		<Hint></Hint>
 		<ResearchCost>10</ResearchCost>
 	</CraftData>
+	<CraftData>
+		<Key>ReikaKalseki.MagmaTurret</Key>
+		<Category>defences</Category>
+		<Tier>4</Tier>
+		<CraftedKey>ReikaKalseki.MagmaTurret_Key</CraftedKey>
+		<CraftedAmount>1</CraftedAmount>
+		<Costs>
+			<CraftCost>
+				<Key>T4EnergyTurretPlacement</Key>
+				<Amount>1</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>T4CreepLancer</Key>
+				<Amount>5</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>CastingPipe</Key>
+				<Amount>30</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>HiemalMachineBlock</Key>
+				<Amount>100</Amount>
+			</CraftCost>
+			<CraftCost>
+				<Key>SecondaryUpgradeModule</Key>
+				<Amount>20</Amount>
+			</CraftCost>
+		</Costs>
+		<ResearchRequirements>
+			<Research>T4_MagmaBore</Research>		
+		</ResearchRequirements>
+		<Description>Sprays magma in all directions to obliterate cryoplasm in a substantial radius around it, though can only be used close to the magma source.</Description>
+		<Hint></Hint>
+		<ResearchCost>20</ResearchCost>
+	</CraftData>
 </ArrayOfCraftData>	

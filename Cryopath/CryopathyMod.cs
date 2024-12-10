@@ -17,6 +17,7 @@ namespace ReikaKalseki.Cryopathy
     private static Config<CRConfig.ConfigEntries> config;
 
     public static ushort missileTurretBlockID;
+    public static ushort magmaTurretBlockID;
 		
 	private static readonly float[] spawnerPauseTimes = new float[8];
 	private static readonly Coordinate[] cryoSpawners = new Coordinate[8];
@@ -45,6 +46,10 @@ namespace ReikaKalseki.Cryopathy
 		TerrainDataValueEntry terrainDataValueEntry;
 		TerrainData.GetCubeByKey("ReikaKalseki.CryoMissileTurret_Key", out terrainDataEntry, out terrainDataValueEntry);
 		missileTurretBlockID = terrainDataEntry.CubeType;
+		
+		registrationData.RegisterEntityHandler("ReikaKalseki.MagmaTurret");
+		TerrainData.GetCubeByKey("ReikaKalseki.MagmaTurret_Key", out terrainDataEntry, out terrainDataValueEntry);
+		magmaTurretBlockID = terrainDataEntry.CubeType;
         
         GenericAutoCrafterDataEntry entry = GenericAutoCrafterNew.mMachinesByKey["OrganicReassembler"];
         entry.Recipe.addIngredient("ReikaKalseki.MagmaDNA", 10);
@@ -55,11 +60,15 @@ namespace ReikaKalseki.Cryopathy
 		try {
 			if (parameters.Cube == missileTurretBlockID) {
 				parameters.ObjectType = SpawnableObjectEnum.MissileTurret_T1;
-				modCreateSegmentEntityResults.Entity = new CryoMissileTurret(parameters.Segment, parameters.X, parameters.Y, parameters.Z, parameters.Cube, parameters.Flags, parameters.Value, parameters.LoadFromDisk);
+				modCreateSegmentEntityResults.Entity = new CryoMissileTurret(parameters);
 			}
 			else if (parameters.Type == eSegmentEntity.CryoMine) {
 				parameters.ObjectType = SpawnableObjectEnum.CryoMine;
 				modCreateSegmentEntityResults.Entity = new SmarterCryoMine(parameters);
+			}
+			else if (parameters.Cube == magmaTurretBlockID) {
+				parameters.ObjectType = SpawnableObjectEnum.Creep_Melter;
+				modCreateSegmentEntityResults.Entity = new MagmaTurret(parameters);
 			}
 		}
 		catch (Exception e) {
@@ -110,9 +119,9 @@ namespace ReikaKalseki.Cryopathy
     	return CubeHelper.IsReinforced(ID) || CubeHelper.IsOre(ID);
     }
     
-    public static ushort getCubeForCryoCheckAt(Segment s, long x, long y, long z, ushort cryoToBuild) { //their code returns false if the returned value from getCube == cryoToBuild
+    public static ushort getCubeForCryoCheckAt(Segment s, long x, long y, long z, ushort cryoToBuild) { //their code returns if the returned value from getCube == cryoToBuild
     	ushort real = s.GetCube(x, y, z);
-    	return CubeHelper.IsMachine(real) || CubeHelper.HasEntity(real) || (config.getBoolean(CRConfig.ConfigEntries.CRYO_ORE_BLOCK) && CubeHelper.IsOre(real)) ? cryoToBuild : real;
+    	return CubeHelper.IsMachine(real) || CubeHelper.HasEntity(real) || (config.getBoolean(CRConfig.ConfigEntries.CRYO_ORE_BLOCK) && CubeHelper.IsOre(real)) || MagmaTurret.isLocationProtected(x, y, z) ? cryoToBuild : real;
     }
     
     private static Coordinate explodeFXQueued = null;
