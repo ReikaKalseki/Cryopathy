@@ -82,6 +82,7 @@ namespace ReikaKalseki.Cryopathy
     public static void pauseCryospawner(ColdCreepSpawner spawner) {
 		int id = (int)spawnerID.GetValue(spawner);
     	spawnerPauseTimes[id] = Time.time;
+		FUtil.log("Pausing cryospawner #"+id+" @ "+new Coordinate(spawner));
     }
     
     public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {

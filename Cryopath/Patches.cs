@@ -233,6 +233,7 @@ namespace ReikaKalseki.Cryopathy {
 					new CodeInstruction(OpCodes.Ldfld, InstructionHandlers.convertFieldOperand(typeof(ColdCreepSpawner), "mnThisID")),
 					InstructionHandlers.createMethodCall(typeof(CryopathyMod), "isCryospawnerPaused", false, new Type[]{typeof(ColdCreepSpawner), typeof(int)}),
 					new CodeInstruction(OpCodes.Brfalse, lb),
+					new CodeInstruction(OpCodes.Ret),
 				};
 				codes[0].labels.Add(lb);
 				InstructionHandlers.patchInitialHook(codes, add);

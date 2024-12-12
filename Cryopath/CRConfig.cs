@@ -12,7 +12,7 @@ namespace ReikaKalseki.Cryopathy
 	{		
 		public enum ConfigEntries {
 			[ConfigEntry("Completely Block Cryoplasm From Destroying Ore", true)]CRYO_ORE_BLOCK,
-			[ConfigEntry("Stun Missile Effect Duration (seconds)", typeof(int), 15, 5, 60, 0)]STUN_TIME,
+			[ConfigEntry("Stun Missile Effect Duration (seconds)", typeof(int), 30, 5, 90, 0)]STUN_TIME,
 			[ConfigEntry("Cryo DNA Drop Chance Multiplier", typeof(float), 1F, 0.2F, 10F, 0)]DROP_CHANCE,
 			[ConfigEntry("Magma Drop Chance Multiplier", typeof(float), 1F, 0.2F, 10F, 0)]MAGMA_DROP_CHANCE,
 			[ConfigEntry("Cryoplasm-Lava Blast Radius", typeof(int), 16, 6, 32, 0)]CRYO_LAVA_AOE,

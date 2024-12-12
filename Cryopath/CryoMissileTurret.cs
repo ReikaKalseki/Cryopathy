@@ -466,7 +466,6 @@ namespace ReikaKalseki.Cryopathy {
 									ColdCreepSpawner spawner = segment.FetchEntity(eSegmentEntity.ColdCreepSpawner, dx, dy, dz) as ColdCreepSpawner;
 									if (spawner != null) {
 										CryopathyMod.pauseCryospawner(spawner);
-										FUtil.log("Pausing cryospawner # "+spawner.mnID+" @ "+new Coordinate(spawner));
 									}
 									else {
 										FUtil.log("Error: Missile impacted a spawner lacking an entity!");
