@@ -591,6 +591,8 @@ namespace ReikaKalseki.Cryopathy {
 			FloatingCombatTextManager.instance.QueueText(this.mnX, mnY, this.mnZ, 1f, "Firing "+name+" to "+c2+"!", Color.yellow, 3f, 128f);
 			currentTarget = c;
 			cachedMissileType = maStoredMissileType;
+			if (cachedMissileType == SPAWNER_ITEM_ID)
+				CryopathyMod.fireAtCryospawner(c.getSegment(AttemptGetSegment).FetchEntity(eSegmentEntity.ColdCreepSpawner, c.xCoord, c.yCoord, c.zCoord) as ColdCreepSpawner);
 			Vector3 vec = Vector3.zero;
 			vec.x = (float)(currentTarget.xCoord - this.mnX);
 			vec.y = (float)(currentTarget.yCoord - this.mnY);

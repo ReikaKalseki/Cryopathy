@@ -91,6 +91,10 @@ namespace ReikaKalseki.Cryopathy
 	}
     
     public static void fireAtCryospawner(ColdCreepSpawner spawner) {
+		if (spawner == null) {
+			FUtil.log("Error: could not log fire upon spawner - no entity");
+			return;
+		}
 		int id = getSpawnerID(spawner);
     	spawnerMissileFireTimes[id] = Time.time;
 		FUtil.log("Firing upon cryospawner #"+id+" @ "+new Coordinate(spawner));
