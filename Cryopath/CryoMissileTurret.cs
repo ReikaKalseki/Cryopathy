@@ -504,7 +504,7 @@ namespace ReikaKalseki.Cryopathy {
 		}
 	
 		private bool isValidSpawnerTarget(ColdCreepSpawner spawner) { //maybe add an AoE check, eg no more than 6 cryo in a 5x5x5 centered on
-			if (CryopathyMod.isCryospawnerPaused(spawner))
+			if (!CryopathyMod.isCryospawnerTargetable(spawner))
 				return false;
 			const int r0 = 2;
 			int cryo = 0;

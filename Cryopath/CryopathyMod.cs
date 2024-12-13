@@ -19,7 +19,9 @@ namespace ReikaKalseki.Cryopathy
     public static ushort missileTurretBlockID;
     public static ushort magmaTurretBlockID;
 		
+    private static readonly Dictionary<int, int> spawnerIDs = new Dictionary<int, int>();
 	private static readonly float[] spawnerPauseTimes = new float[8];
+	private static readonly float[] spawnerMissileFireTimes = new float[8];
 	private static readonly Coordinate[] cryoSpawners = new Coordinate[8];
     
     public CryopathyMod() : base("Cryopathy") {
@@ -78,15 +80,35 @@ namespace ReikaKalseki.Cryopathy
 	}
 	
 	private static readonly FieldInfo spawnerID = typeof(ColdCreepSpawner).GetField("mnThisID", BindingFlags.Instance | BindingFlags.NonPublic);
+	
+	private static int getSpawnerID(ColdCreepSpawner spawner) {
+		int eid = spawner.mnID;
+		if (!spawnerIDs.ContainsKey(eid)) {
+			spawnerIDs[eid] = (int)spawnerID.GetValue(spawner);
+			FUtil.log("Cached spawner ID "+spawnerIDs[eid]+" for EntityID "+eid);
+		}
+		return spawnerIDs[eid];
+	}
+    
+    public static void fireAtCryospawner(ColdCreepSpawner spawner) {
+		int id = getSpawnerID(spawner);
+    	spawnerMissileFireTimes[id] = Time.time;
+		FUtil.log("Firing upon cryospawner #"+id+" @ "+new Coordinate(spawner));
+    }
     
     public static void pauseCryospawner(ColdCreepSpawner spawner) {
-		int id = (int)spawnerID.GetValue(spawner);
+		int id = getSpawnerID(spawner);
     	spawnerPauseTimes[id] = Time.time;
 		FUtil.log("Pausing cryospawner #"+id+" @ "+new Coordinate(spawner));
     }
     
+    public static bool isCryospawnerTargetable(ColdCreepSpawner spawner) { //if a missile fired <5s ago or is paused, do not allow firing
+    	int id = getSpawnerID(spawner);
+    	return !isCryospawnerPaused(spawner, id) && !(spawnerMissileFireTimes.Contains(id) && Time.time-spawnerMissileFireTimes[id] < 5);
+    }
+    
     public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {
-    	int id = (int)spawnerID.GetValue(spawner);
+    	int id = getSpawnerID(spawner);
     	return isCryospawnerPaused(spawner, id);
     }
     
