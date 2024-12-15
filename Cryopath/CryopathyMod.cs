@@ -92,23 +92,25 @@ namespace ReikaKalseki.Cryopathy
     
     public static void fireAtCryospawner(ColdCreepSpawner spawner) {
 		if (spawner == null) {
-			FUtil.log("Error: could not log fire upon spawner - no entity");
+			FUtil.log("Error: could not log fire upon cryospawner - no entity");
 			return;
 		}
 		int id = getSpawnerID(spawner);
     	spawnerMissileFireTimes[id] = Time.time;
-		FUtil.log("Firing upon cryospawner #"+id+" @ "+new Coordinate(spawner));
+		FUtil.log("Firing upon cryospawner #"+id+" @ "+new Coordinate(spawner)+" @ "+spawnerMissileFireTimes[id]);
     }
     
     public static void pauseCryospawner(ColdCreepSpawner spawner) {
 		int id = getSpawnerID(spawner);
     	spawnerPauseTimes[id] = Time.time;
-		FUtil.log("Pausing cryospawner #"+id+" @ "+new Coordinate(spawner));
+		FUtil.log("Pausing cryospawner #"+id+" @ "+new Coordinate(spawner)+" @ "+spawnerPauseTimes[id]);
     }
     
-    public static bool isCryospawnerTargetable(ColdCreepSpawner spawner) { //if a missile fired <5s ago or is paused, do not allow firing
+    public static bool isCryospawnerTargetable(ColdCreepSpawner spawner) { //if a missile fired <5s ago or is paused (and not about to unpause), do not allow firing
     	int id = getSpawnerID(spawner);
-    	return !isCryospawnerPaused(spawner, id) && !(spawnerMissileFireTimes.Contains(id) && Time.time-spawnerMissileFireTimes[id] < 5);
+    	if (Time.time-spawnerMissileFireTimes[id] < 5)
+    		return false;
+    	return Time.time-spawnerPauseTimes[id] >= config.getFloat(CRConfig.ConfigEntries.STUN_TIME)-5;
     }
     
     public static bool isCryospawnerPaused(ColdCreepSpawner spawner) {

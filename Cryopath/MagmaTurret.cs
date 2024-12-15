@@ -38,14 +38,14 @@ namespace ReikaKalseki.Cryopathy {
 		public static readonly int PER_TICK = 10; //with a volume of 46575 (/8 = 5822 coords), 50/s, means 2 min per cycle for active clearing
 		public static readonly int HALO_LIFETIME = 10; //2s
 
-		public static readonly float PPS = 2000F;		
-		public static readonly float MAX_POWER = 100000F;
+		//public static readonly float PPS = 2000F;		
+		//public static readonly float MAX_POWER = 100000F;
 		
 		private static readonly List<MagmaTurret> cachedTurrets = new List<MagmaTurret>();
 
-		public float mrCurrentPower;
+		//public float mrCurrentPower;
 
-		public float mrNormalisedPower;
+		//public float mrNormalisedPower;
 
 		private bool mbLinkedToGO;
 
@@ -176,13 +176,13 @@ namespace ReikaKalseki.Cryopathy {
 		}
 
 		public override void Write(BinaryWriter writer) {
-			writer.Write(this.mrCurrentPower);
+			//writer.Write(this.mrCurrentPower);
 			writer.Write(this.mnBlocksAblated);
 			writer.Write(this.hasMagma);
 		}
 
 		public override void Read(BinaryReader reader, int entityVersion) {
-			this.mrCurrentPower = reader.ReadSingle();
+			//this.mrCurrentPower = reader.ReadSingle();
 			this.mnBlocksAblated = reader.ReadInt32();
 			this.hasMagma = reader.ReadInt32();
 		}
@@ -329,7 +329,7 @@ namespace ReikaKalseki.Cryopathy {
 		}
 
 		private bool tryProtect(long x, long y, long z) {
-			if (hasMagma <= 0 || mrCurrentPower < PPS)
+			if (hasMagma <= 0/* || mrCurrentPower < PPS*/)
 				return false;
 			Vector3 dist = new Vector3(x-mnX, y-mnY, z-mnZ);
 			if (dist.sqrMagnitude <= RANGE*RANGE && Vector3.Dot(dist.normalized, mUp) > -0.1F) { //dot so it is not far below us
@@ -391,10 +391,9 @@ namespace ReikaKalseki.Cryopathy {
 			if (hasMagma <= 0)
 				return;
 			
-			if (mrCurrentPower < PPS*dT)
-				return;
-			
-			mrCurrentPower -= PPS*dT;
+			//if (mrCurrentPower < PPS*dT)
+			//	return;			
+			//mrCurrentPower -= PPS*dT;
 			
 			for (int i = 0; i < PER_TICK && blocksToCheck.Count > 0 && hasMagma > 0; i++) {
 				Coordinate c = blocksToCheck[0];
@@ -414,7 +413,7 @@ namespace ReikaKalseki.Cryopathy {
 			if (blocksToCheck.Count == 0)
 				setupScanAoE();
 		}
-
+/*
 		public float GetRemainingPowerCapacity() {
 			return MAX_POWER - this.mrCurrentPower;
 		}
@@ -439,7 +438,7 @@ namespace ReikaKalseki.Cryopathy {
 			this.MarkDirtyDelayed();
 			return true;
 		}
-
+*/
 		public override string GetPopupText() {
 			string ret = base.GetPopupText();
 			
@@ -447,7 +446,7 @@ namespace ReikaKalseki.Cryopathy {
 				ret += "\n"+PersistentSettings.GetString("C5_Offline_defences_offline");
 				return ret;
 			}
-			ret += "\nPower: "+mrCurrentPower+"/"+MAX_POWER+" (needs "+PPS+" PPS)";
+			//ret += "\nPower: "+mrCurrentPower+"/"+MAX_POWER+" (needs "+PPS+" PPS)";
 			if (magmaSource == null)
 				ret += "\nNo magma storage found within "+PIPE_RANGE+"m! Searching again in "+sourceSearchCooldown.ToString("0.0")+"s";
 			else if (hasMagma <= 0)
